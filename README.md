@@ -1,2 +1,2 @@
 # janus-home-assistant
-Home assistant and multimedia controller made using agentic AI and hooked up to several microcontrollers attached to home appliances.
+Home assistant and multimedia controller made using agentic AI. The brain is hooked up to appliances using several microcontrollers.
