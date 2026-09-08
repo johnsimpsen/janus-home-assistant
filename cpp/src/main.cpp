@@ -8,10 +8,10 @@ WebServer server(80);
 void setup() {
     Serial.begin(115200);
 
-    pinMode(12, OUTPUT);
-    pinMode(13, OUTPUT);
-    pinMode(14, OUTPUT);
-    pinMode(BUILTIN_LED_PIN, OUTPUT);
+    enablePinAsOutput(BUILTIN_LED_PIN);
+    enablePinAsOutput(12);
+    enablePinAsOutput(13);
+    enablePinAsOutput(14);
 
     NetworkCredentials credentials;
 

@@ -1,5 +1,5 @@
-#ifndef ESP32_TEST_WIFI_H
-#define ESP32_TEST_WIFI_H
+#ifndef JANUS_WIFI_H
+#define JANUS_WIFI_H
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -12,7 +12,7 @@ extern WebServer server;
 
 void apiLED();
 
-bool connectToWifi(const String& ssid, const String& password) {
+inline bool connectToWifi(const String& ssid, const String& password) {
     Serial.print("Connecting to WiFi");
 
     WiFi.mode(WIFI_STA);
@@ -42,14 +42,14 @@ bool connectToWifi(const String& ssid, const String& password) {
     return true;
 }
 
-void startServer() {
+inline void startServer() {
     server.on("/pin", HTTP_GET, apiLED);
 
     server.begin();
     Serial.println("Server started");
 }
 
-void apiLED() {
+inline void apiLED() {
     if (!server.hasArg("gpio")) {
         server.send(400, "text/plain", "Missing gpio parameter");
         return;
@@ -62,4 +62,4 @@ void apiLED() {
     server.send(200, "text/plain", ledStatus.c_str());
 }
 
-#endif //ESP32_TEST_WIFI_H
+#endif //JANUS_WIFI_H

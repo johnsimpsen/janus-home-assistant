@@ -1,18 +1,18 @@
-#ifndef ESP32_TEST_LEDFUNCTIONS_H
-#define ESP32_TEST_LEDFUNCTIONS_H
+#ifndef JANUS_LEDFUNCTIONS_H
+#define JANUS_LEDFUNCTIONS_H
 
 #include <Arduino.h>
 #include "gpio.h"
 
-int togglePin(uint32_t PIN) {
-    bool previousState  = GPIO_OUT & (1 << PIN);
+inline int togglePin(uint8_t pin) {
+    bool previousState  = GPIO_OUT & (1 << pin);
 
     if (previousState)
-        GPIO_OUT_W1TC |= (1 << PIN); //set LOW
+        GPIO_OUT_W1TC |= (1 << pin); //set LOW
     else
-        GPIO_OUT_W1TS |= (1 << PIN); //set HIGH
+        GPIO_OUT_W1TS |= (1 << pin); //set HIGH
 
     return !previousState; //returns current state
 }
 
-#endif //ESP32_TEST_LEDFUNCTIONS_H
+#endif //JANUS_LEDFUNCTIONS_H

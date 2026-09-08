@@ -1,5 +1,5 @@
-#ifndef ESP32_TEST_ENVIRONMENT_H
-#define ESP32_TEST_ENVIRONMENT_H
+#ifndef JANUS_ENVIRONMENT_H
+#define JANUS_ENVIRONMENT_H
 
 #include <LittleFS.h>
 
@@ -40,4 +40,4 @@ bool readNetworkCredentials(NetworkCredentials& credentials) {
     return true;
 }
 
-#endif //ESP32_TEST_ENVIRONMENT_H
+#endif //JANUS_ENVIRONMENT_H
