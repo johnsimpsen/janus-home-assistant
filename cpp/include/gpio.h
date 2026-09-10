@@ -1,5 +1,5 @@
-#ifndef JANUS_GPIO_H
-#define JANUS_GPIO_H
+#ifndef GPIO_H
+#define GPIO_H
 
 //Pin memory addresses
 #define GPIO_OUT          (*(volatile uint32_t *)0x3FF44004) //For reading GPIO state
@@ -8,10 +8,10 @@
 
 #define GPIO_ENABLE_W1TS  (*(volatile uint32_t*)0x3FF44024)
 #define GPIO_ENABLE_W1TC  (*(volatile uint32_t*)0x3FF44028)
-#define IO_MUX_GPIO_BASE  0x3FF49000 //For choosing the functionality of a certain pin
 
 // IO_MUX function selection is bits 12-14
 // Bits 12-14 being 010 (function 2) sets a pin to gpio mode
+#define IO_MUX_GPIO_BASE  0x3FF49000 //For choosing the functionality of a certain pin
 #define IO_MUX_FUNC_SEL_SHIFT 12
 #define IO_MUX_FUNC_SEL_MASK  (0x7 << IO_MUX_FUNC_SEL_SHIFT)
 
@@ -32,7 +32,7 @@ inline uint32_t getMuxAddressOffset(uint8_t pin) {
             return 0x34;
         case 13: //MTCK
             return 0x38;
-        case 2: //GPIO 2
+        case 2: //GPIO2
             return 0x40;
         default:
             return 0x00;
@@ -56,4 +56,4 @@ inline void myDigitalWrite(uint8_t pin, bool value)
         GPIO_OUT_W1TC = (1 << pin);
 }
 
-#endif //JANUS_GPIO_H
+#endif //GPIO_H

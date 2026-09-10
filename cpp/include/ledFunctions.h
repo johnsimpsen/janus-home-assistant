@@ -1,5 +1,5 @@
-#ifndef JANUS_LEDFUNCTIONS_H
-#define JANUS_LEDFUNCTIONS_H
+#ifndef LEDFUNCTIONS_H
+#define LEDFUNCTIONS_H
 
 #include <Arduino.h>
 #include "gpio.h"
@@ -15,4 +15,4 @@ inline int togglePin(uint8_t pin) {
     return !previousState; //returns current state
 }
 
-#endif //JANUS_LEDFUNCTIONS_H
+#endif //LEDFUNCTIONS_H

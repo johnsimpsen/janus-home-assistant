@@ -1,5 +1,5 @@
-#ifndef JANUS_ENVIRONMENT_H
-#define JANUS_ENVIRONMENT_H
+#ifndef ENVIRONMENT_H
+#define ENVIRONMENT_H
 
 #include <LittleFS.h>
 
@@ -9,7 +9,7 @@ struct NetworkCredentials {
 };
 
 //Read Network Credentials from .env using LittleFS
-bool readNetworkCredentials(NetworkCredentials& credentials) {
+inline bool readNetworkCredentials(NetworkCredentials& credentials) {
     if (!LittleFS.begin(true)) {
         Serial.println("LittleFS failed");
         return false;
@@ -40,4 +40,4 @@ bool readNetworkCredentials(NetworkCredentials& credentials) {
     return true;
 }
 
-#endif //JANUS_ENVIRONMENT_H
+#endif //ENVIRONMENT_H

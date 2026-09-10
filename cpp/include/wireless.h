@@ -1,5 +1,5 @@
-#ifndef JANUS_WIFI_H
-#define JANUS_WIFI_H
+#ifndef WIFI_H
+#define WIFI_H
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -62,4 +62,4 @@ inline void apiLED() {
     server.send(200, "text/plain", ledStatus.c_str());
 }
 
-#endif //JANUS_WIFI_H
+#endif //WIFI_H
