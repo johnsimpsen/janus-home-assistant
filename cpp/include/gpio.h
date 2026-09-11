@@ -48,6 +48,7 @@ inline void enablePinAsOutput(uint8_t pin) {
     GPIO_ENABLE_W1TS = (1 << pin);
 }
 
+//Set a pin's value
 inline void myDigitalWrite(uint8_t pin, bool value)
 {
     if (value)
@@ -55,5 +56,18 @@ inline void myDigitalWrite(uint8_t pin, bool value)
     else
         GPIO_OUT_W1TC = (1 << pin);
 }
+
+//Toggle a pin and return it's current state
+inline int togglePin(uint8_t pin) {
+    bool previousState  = GPIO_OUT & (1 << pin);
+
+    if (previousState)
+        GPIO_OUT_W1TC = (1 << pin); //set LOW
+    else
+        GPIO_OUT_W1TS = (1 << pin); //set HIGH
+
+    return !previousState; //returns current state
+}
+
 
 #endif //GPIO_H

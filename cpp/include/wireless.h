@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
-#include "ledFunctions.h"
+#include "gpio.h"
 
 #define WIFI_TIMEOUT 20000
 
