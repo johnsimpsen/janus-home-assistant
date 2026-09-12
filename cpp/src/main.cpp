@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include "wireless.h"
 #include <environment.h>
 #include "gpio.h"

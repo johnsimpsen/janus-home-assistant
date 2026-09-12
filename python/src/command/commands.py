@@ -24,7 +24,12 @@ def run_enable(params):
         case 2:
             zone_number = params[0]
             device_number = params[1]
-            response = requests.get('http://192.168.1.167/enable?pin=' + str(device_number))
+            if device_number == "all":
+                response = requests.get('http://192.168.1.167/enable')
+            else:
+                response = requests.get('http://192.168.1.167/enable?pin=' + str(device_number))
+            print(response.text)
+
         case _:
             raise Exception("Params are missing")
 
@@ -36,7 +41,12 @@ def run_disable(params):
         case 2:
             zone_number = params[0]
             device_number = params[1]
-            response = requests.get('http://192.168.1.167/disable?pin=' + str(device_number))
+            if device_number == "all":
+                response = requests.get('http://192.168.1.167/disable')
+            else:
+                response = requests.get('http://192.168.1.167/disable?pin=' + str(device_number))
+            print(response.text)
+
         case _:
             raise Exception("Params are missing")
 

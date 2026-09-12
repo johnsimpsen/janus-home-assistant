@@ -11,7 +11,7 @@
 
 // IO_MUX function selection is bits 12-14
 // Bits 12-14 being 010 (function 2) sets a pin to gpio mode
-#define IO_MUX_GPIO_BASE  0x3FF49000 //For choosing the functionality of a certain pin
+#define IO_MUX_GPIO_BASE 0x3FF49000 //For choosing the functionality of a certain pin
 #define IO_MUX_FUNC_SEL_SHIFT 12
 #define IO_MUX_FUNC_SEL_MASK  (0x7 << IO_MUX_FUNC_SEL_SHIFT)
 
@@ -39,6 +39,7 @@ inline uint32_t getMuxAddressOffset(uint8_t pin) {
     }
 }
 
+//Mark a pin as a gpio out
 inline void enablePinAsOutput(uint8_t pin) {
     // Select GPIO function (Function 2)
     volatile uint32_t *currentPinMux =  (volatile uint32_t *) (IO_MUX_GPIO_BASE + getMuxAddressOffset(pin));
@@ -48,7 +49,7 @@ inline void enablePinAsOutput(uint8_t pin) {
     GPIO_ENABLE_W1TS = (1 << pin);
 }
 
-//Set a pin's value
+//Set a pin to be on or off
 inline void digitalWrite(uint8_t pin, bool value)
 {
     if (value)

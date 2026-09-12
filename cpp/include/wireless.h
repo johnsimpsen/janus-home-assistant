@@ -1,19 +1,18 @@
 #ifndef WIFI_H
 #define WIFI_H
 
-#include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
-#include "gpio.h"
 
 #define WIFI_TIMEOUT 20000
 
 extern WebServer server;
 
-void apiLED();
+void toggleLED();
 void enableLED();
 void disableLED();
 
+//Connect to the wifi network
 inline bool connectToWifi(const String& ssid, const String& password) {
     Serial.print("Connecting to WiFi");
 
@@ -44,52 +43,14 @@ inline bool connectToWifi(const String& ssid, const String& password) {
     return true;
 }
 
+//Define all HTTP routes and then start the server
 inline void startServer() {
-    server.on("/pin", HTTP_GET, apiLED);
+    server.on("/pin", HTTP_GET, toggleLED);
     server.on("/enable", HTTP_GET, enableLED);
     server.on("/disable", HTTP_GET, disableLED);
 
     server.begin();
     Serial.println("Server started");
-}
-
-inline void apiLED() {
-    if (!server.hasArg("gpio")) {
-        server.send(400, "text/plain", "Missing gpio parameter");
-        return;
-    }
-
-    int gpio = server.arg("gpio").toInt();
-
-    std::string ledStatus = std::to_string(togglePin(gpio));
-    Serial.println("LED API");
-    server.send(200, "text/plain", ledStatus.c_str());
-}
-
-inline void enableLED() {
-    if (!server.hasArg("pin")) {
-        server.send(400, "text/plain", "Missing pin number");
-        return;
-    }
-
-    int pin_number = server.arg("pin").toInt();
-
-    digitalWrite(pin_number, true);
-    Serial.println("Pin " + String(pin_number) + " enabled");
-    server.send(200, "text/plain", String(pin_number));
-}
-
-inline void disableLED() {
-    if (!server.hasArg("pin")) {
-        server.send(400, "text/plain", "Missing pin number");
-        return;
-    }
-
-    int pin_number = server.arg("pin").toInt();
-
-    digitalWrite(pin_number, false);
-    Serial.println("Pin " + String(pin_number) + " disabled");
-    server.send(200, "text/plain", String(pin_number));
 }
 
 #endif //WIFI_H
