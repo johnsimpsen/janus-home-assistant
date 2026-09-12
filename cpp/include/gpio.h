@@ -49,7 +49,7 @@ inline void enablePinAsOutput(uint8_t pin) {
 }
 
 //Set a pin's value
-inline void myDigitalWrite(uint8_t pin, bool value)
+inline void digitalWrite(uint8_t pin, bool value)
 {
     if (value)
         GPIO_OUT_W1TS = (1 << pin);

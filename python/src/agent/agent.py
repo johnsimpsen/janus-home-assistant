@@ -124,7 +124,6 @@ unknown error <reason>
 Do not use quotation marks.
 Use exactly one space between parameters.
 
-
 USER INPUT:
 {user_input}
 """
@@ -133,7 +132,8 @@ prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
 
-def prompt_LLM(input_command):
+#Returns a specific command based on user input
+def prompt_llm(input_command):
     result = chain.invoke({"user_input": input_command})
-    print(result)
+    print("Output: " + result)
     return result

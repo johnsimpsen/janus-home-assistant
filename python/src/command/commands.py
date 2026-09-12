@@ -1,6 +1,6 @@
 import requests
-from src.agent.agent import prompt_LLM
-from src.command.parser import parseCommand
+from src.agent.agent import prompt_llm
+from src.command.parser import parse_command
 
 def togglePin(pinNum):
     try:
@@ -16,20 +16,52 @@ def togglePin(pinNum):
     else:
         print("Pin " + str(pinNum) + " on")
 
+
+#run the enable command
+def run_enable(params):
+    #determine behavior based on number of parameters passed
+    match len(params):
+        case 2:
+            zone_number = params[0]
+            device_number = params[1]
+            response = requests.get('http://192.168.1.167/enable?pin=' + str(device_number))
+        case _:
+            raise Exception("Params are missing")
+
+
+#run the disable command
+def run_disable(params):
+    #determine behavior based on number of parameters passed
+    match len(params):
+        case 2:
+            zone_number = params[0]
+            device_number = params[1]
+            response = requests.get('http://192.168.1.167/disable?pin=' + str(device_number))
+        case _:
+            raise Exception("Params are missing")
+
+
 #maps commands to functions
 function_map = {
-    "enable 1 12": lambda: togglePin(12),
-    "enable 1 13": lambda: togglePin(13),
-    "enable 1 14": lambda: togglePin(14)
+    "enable": run_enable,
+    "disable": run_disable
 }
+
 
 #prompt the LLM with the input command, then attempt to parse the command and map it to a function
 def run_command(input_command):
-    output_command = prompt_LLM(input_command)
-    parsed_command = parseCommand(output_command)
+    output_command = prompt_llm(input_command)
+    parsed_command = parse_command(output_command)
 
-    if parsed_command in function_map:
-        result = function_map.get(parsed_command)()
+    command_name = parsed_command["command"]
+    params = parsed_command["params"]
+
+    #if associated function found, run the command
+    if command_name in function_map:
+        #find associated functions
+        command_function = function_map.get(command_name)
+        command_function(params)
     else:
         print("Command not found")
+
 

@@ -11,6 +11,8 @@
 extern WebServer server;
 
 void apiLED();
+void enableLED();
+void disableLED();
 
 inline bool connectToWifi(const String& ssid, const String& password) {
     Serial.print("Connecting to WiFi");
@@ -44,6 +46,8 @@ inline bool connectToWifi(const String& ssid, const String& password) {
 
 inline void startServer() {
     server.on("/pin", HTTP_GET, apiLED);
+    server.on("/enable", HTTP_GET, enableLED);
+    server.on("/disable", HTTP_GET, disableLED);
 
     server.begin();
     Serial.println("Server started");
@@ -60,6 +64,32 @@ inline void apiLED() {
     std::string ledStatus = std::to_string(togglePin(gpio));
     Serial.println("LED API");
     server.send(200, "text/plain", ledStatus.c_str());
+}
+
+inline void enableLED() {
+    if (!server.hasArg("pin")) {
+        server.send(400, "text/plain", "Missing pin number");
+        return;
+    }
+
+    int pin_number = server.arg("pin").toInt();
+
+    digitalWrite(pin_number, true);
+    Serial.println("Pin " + String(pin_number) + " enabled");
+    server.send(200, "text/plain", String(pin_number));
+}
+
+inline void disableLED() {
+    if (!server.hasArg("pin")) {
+        server.send(400, "text/plain", "Missing pin number");
+        return;
+    }
+
+    int pin_number = server.arg("pin").toInt();
+
+    digitalWrite(pin_number, false);
+    Serial.println("Pin " + String(pin_number) + " disabled");
+    server.send(200, "text/plain", String(pin_number));
 }
 
 #endif //WIFI_H
