@@ -1,6 +1,7 @@
 import requests
 from src.agent.agent import prompt_llm
 from src.command.parser import parse_command
+from src.network.zones import zone_data
 
 def togglePin(pinNum):
     try:
@@ -17,44 +18,30 @@ def togglePin(pinNum):
         print("Pin " + str(pinNum) + " on")
 
 
-#run the enable command
-def run_enable(params):
+#run the enable/disable command
+def run_enable_disable(command_name, params):
     #determine behavior based on number of parameters passed
     match len(params):
         case 2:
             zone_number = params[0]
             device_number = params[1]
+            current_zone = zone_data.get(str(zone_number))
+
             if device_number == "all":
-                response = requests.get('http://192.168.1.167/enable')
+                response = requests.get(f'http://{current_zone.get("ip")}/{command_name}')
             else:
-                response = requests.get('http://192.168.1.167/enable?pin=' + str(device_number))
+                response = requests.get(f'http://{current_zone.get("ip")}/{command_name}?pin=' + str(device_number))
             print(response.text)
 
         case _:
             raise Exception("Params are missing")
 
-
-#run the disable command
-def run_disable(params):
-    #determine behavior based on number of parameters passed
-    match len(params):
-        case 2:
-            zone_number = params[0]
-            device_number = params[1]
-            if device_number == "all":
-                response = requests.get('http://192.168.1.167/disable')
-            else:
-                response = requests.get('http://192.168.1.167/disable?pin=' + str(device_number))
-            print(response.text)
-
-        case _:
-            raise Exception("Params are missing")
 
 
 #maps commands to functions
 function_map = {
-    "enable": run_enable,
-    "disable": run_disable
+    "enable": run_enable_disable,
+    "disable": run_enable_disable
 }
 
 
@@ -70,7 +57,7 @@ def run_command(input_command):
     if command_name in function_map:
         #find associated functions
         command_function = function_map.get(command_name)
-        command_function(params)
+        command_function(command_name, params)
     else:
         print("Command not found")
 

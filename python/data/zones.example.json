@@ -1,0 +1,18 @@
+{
+  "zones": {
+    "1": {
+      "ip": "127.0.0.1",
+      "devices": {
+        "12": {
+          "nickname": "red"
+        },
+        "13": {
+          "nickname": "green"
+        },
+        "14": {
+          "nickname": "blue"
+        }
+      }
+    }
+  }
+}
