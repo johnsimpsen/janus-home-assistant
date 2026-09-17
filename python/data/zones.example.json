@@ -4,13 +4,16 @@
       "ip": "127.0.0.1",
       "devices": {
         "12": {
-          "nickname": "red"
+          "nickname": "red",
+          "dimmable": true
         },
         "13": {
-          "nickname": "green"
+          "nickname": "green",
+          "dimmable": true
         },
         "14": {
-          "nickname": "blue"
+          "nickname": "blue",
+          "dimmable": true
         }
       }
     }
