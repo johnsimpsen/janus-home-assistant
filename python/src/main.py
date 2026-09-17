@@ -1,11 +1,7 @@
-from src.command.commands import run_command
+from src.StateMachine import State, StateMachine
 
 if __name__ == "__main__":
+    assistant = StateMachine()
 
     while True:
-        input_command = input("Prompt: ")
-
-        if input_command.lower() == "q":
-            break
-
-        run_command(input_command)
+        assistant.run()

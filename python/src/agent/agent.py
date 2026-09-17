@@ -132,8 +132,6 @@ prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
 
-#Returns a specific command based on user input
-def prompt_llm(input_command):
-    result = chain.invoke({"user_input": input_command})
-    print("Output: " + result)
-    return result
+def prompt_llm(user_input):
+    """returns a specific command based on user input"""
+    return chain.invoke({"user_input": user_input})

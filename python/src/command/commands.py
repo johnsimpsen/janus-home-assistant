@@ -1,27 +1,10 @@
 import requests
-from src.agent.agent import prompt_llm
-from src.command.parser import parse_command
 from src.network.zones import zone_data
 
-def togglePin(pinNum):
-    try:
-        response = requests.get('http://192.168.1.167/pin?gpio=' + str(pinNum))
-        #response = requests.get('http://97.99.90.190:5000/pin?gpio=' + str(pinNum))
-        ledStatus = response.text
-    except:
-        print("Something went wrong")
-        return
 
-    if (ledStatus == "0"):
-        print("Pin " + str(pinNum) + " off")
-    else:
-        print("Pin " + str(pinNum) + " on")
-
-
-#run the enable/disable command
 def run_enable_disable(command_name, params):
-    #determine behavior based on number of parameters passed
-    match len(params):
+    """run the enable/disable command"""
+    match len(params): #determine behavior based on number of parameters passed
         case 2:
             zone_number = params[0]
             device_number = params[1]
@@ -34,7 +17,7 @@ def run_enable_disable(command_name, params):
             print(response.text)
 
         case _:
-            raise Exception("Params are missing")
+            raise Exception("Incorrect number of parameters")
 
 
 
@@ -45,20 +28,29 @@ function_map = {
 }
 
 
-#prompt the LLM with the input command, then attempt to parse the command and map it to a function
-def run_command(input_command):
-    output_command = prompt_llm(input_command)
-    parsed_command = parse_command(output_command)
+def parse_command(input_command):
+    """separate the command and its parameters"""
+    arr = input_command.split()
+    command = arr[0]
+    params = arr[1:]
 
+    command = command.lower()
+
+    for i in range(len(arr)):
+        arr[i] = arr[i].lower()
+
+    return {"command": command, "params": params}
+
+
+def run_command(parsed_command):
+    """attempt to run a parsed command by finding its associated function"""
     command_name = parsed_command["command"]
     params = parsed_command["params"]
 
     #if associated function found, run the command
     if command_name in function_map:
-        #find associated functions
         command_function = function_map.get(command_name)
         command_function(command_name, params)
     else:
-        print("Command not found")
-
+        raise Exception("Command not found")
 
