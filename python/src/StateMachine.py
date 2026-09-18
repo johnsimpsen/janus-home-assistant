@@ -2,6 +2,7 @@ from enum import Enum
 from src.agent.agent import prompt_llm
 from src.command.commands import parse_command, run_command
 
+
 class _Context:
     def __init__(self):
         self.user_input = None
@@ -67,7 +68,6 @@ class StateMachine:
                 self.set_state(State.ERROR)
                 self._error(e)
 
-
     def set_state(self, new_state):
         """Change the current state to the new one"""
         if self._current_state == new_state:
@@ -82,7 +82,6 @@ class StateMachine:
         # TODO: implement speech listener module
         self.set_state(State.PROCESSING)
 
-
     def _processing(self):
         """speech prompts are converted to text and fed to a llm to be processed into a command"""
         user_input = input("Prompt: ") # TODO: Replace with speech to text module
@@ -90,11 +89,11 @@ class StateMachine:
 
         if user_input.lower() == "q" or user_input.lower() == "quit":
             self.set_state(State.QUIT)
+            return
 
         self.context.llm_output = prompt_llm(user_input)
 
         self.set_state(State.VALIDATING)
-
 
     def _validating(self):
         """processed commands are checked for errors and then formatted"""
