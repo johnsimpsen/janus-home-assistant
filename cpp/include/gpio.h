@@ -26,6 +26,10 @@
 */
 inline uint32_t getMuxAddressOffset(uint8_t pin) {
     switch (pin) {
+        case 32:
+            return 0x1C;
+        case 33:
+            return 0x20;
         case 14: //MTMS
             return 0x30;
         case 12: //MTDI
@@ -34,6 +38,10 @@ inline uint32_t getMuxAddressOffset(uint8_t pin) {
             return 0x38;
         case 2: //GPIO2
             return 0x40;
+        case 18: //GPIO18
+            return 0x70;
+        case 19: //GPIO19
+            return 0x74;
         default:
             return 0x00;
     }
@@ -42,7 +50,7 @@ inline uint32_t getMuxAddressOffset(uint8_t pin) {
 //Mark a pin as a gpio out
 inline void enablePinAsOutput(uint8_t pin) {
     // Select GPIO function (Function 2)
-    volatile uint32_t *currentPinMux =  (volatile uint32_t *) (IO_MUX_GPIO_BASE + getMuxAddressOffset(pin));
+    volatile uint32_t *currentPinMux = (volatile uint32_t *) (IO_MUX_GPIO_BASE + getMuxAddressOffset(pin));
     *currentPinMux = (*currentPinMux & ~IO_MUX_FUNC_SEL_MASK) | (2 << IO_MUX_FUNC_SEL_SHIFT);
 
     // Enable GPIO13's output driver

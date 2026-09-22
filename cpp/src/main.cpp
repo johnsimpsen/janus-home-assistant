@@ -1,6 +1,7 @@
 #include "wireless.h"
-#include <environment.h>
+#include "environment.h"
 #include "gpio.h"
+#include "dimming.h"
 
 WebServer server(80);
 
@@ -25,6 +26,8 @@ void setup() {
     //Start Server and define api endpoints
     startServer();
     GPIO_OUT_W1TS |= (1 << BUILTIN_LED_PIN);
+
+    setupDimmer();
 }
 
 

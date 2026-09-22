@@ -11,6 +11,7 @@ extern WebServer server;
 void toggleLED();
 void enableLED();
 void disableLED();
+void setLevel();
 
 //Connect to the wifi network
 inline bool connectToWifi(const String& ssid, const String& password) {
@@ -48,6 +49,7 @@ inline void startServer() {
     server.on("/pin", HTTP_GET, toggleLED);
     server.on("/enable", HTTP_GET, enableLED);
     server.on("/disable", HTTP_GET, disableLED);
+    server.on("/level", HTTP_GET, setLevel);
 
     server.begin();
     Serial.println("Server started");

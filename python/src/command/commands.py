@@ -19,12 +19,25 @@ def run_enable_disable(command_name, params):
         case _:
             raise Exception("Incorrect number of parameters")
 
+def run_set(command_name, params):
+    match len(params):  # determine behavior based on number of parameters passed
+        case 2:
+            zone_number = params[0]
+            level = params[1]
+            current_zone = zone_data.get(str(zone_number))
+
+            response = requests.get(f'http://{current_zone.get("ip")}/level?level=' + str(level))
+            print(response.text)
+
+        case _:
+            raise Exception("Incorrect number of parameters")
 
 
 #maps commands to functions
 function_map = {
     "enable": run_enable_disable,
-    "disable": run_enable_disable
+    "disable": run_enable_disable,
+    'set': run_set,
 }
 
 

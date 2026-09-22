@@ -1,4 +1,6 @@
 #include "wireless.h"
+
+#include "dimming.h"
 #include "gpio.h"
 
 //toggle
@@ -55,4 +57,15 @@ void disableLED() {
 
     Serial.println("Pin " + String(pin_number) + " disabled");
     server.send(200, "text/plain", String(pin_number));
+}
+
+void setLevel() {
+    if (!server.hasArg("level"))
+        server.send(400, "text/plain", String("missing param level"));
+
+    int level = server.arg("level").toInt();
+
+    setDimmer(level);
+
+    server.send(200, "text/plain", String(level));
 }
