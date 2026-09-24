@@ -5,7 +5,7 @@
 
 class DeviceManager {
     private:
-        DeviceManager();
+        DeviceManager() = default;
         inline static DeviceManager* instance = nullptr;
         std::unordered_map<uint8_t, Device*> devices = {}; // deviceId : device reference
         uint8_t count = 0;
@@ -27,6 +27,10 @@ class DeviceManager {
 
         bool addDevice(Device* device) {
             if (!device)
+                return false;
+
+            // Attempt to setup device
+            if (!device->setup())
                 return false;
 
             devices.insert({count, device});

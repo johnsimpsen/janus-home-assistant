@@ -1,6 +1,7 @@
 #include "wireless.h"
-
 #include "gpio.h"
+#include "device_manager.h"
+#include "device.h"
 
 void enableLED() {
     //enable all connected devices
@@ -48,11 +49,18 @@ void setLevel() {
     if (!server.hasArg("level"))
         server.send(400, "text/plain", String("missing param level"));
     if (!server.hasArg("deviceNum"))
-        server.send(400, "text/plain", String("missing param deviceNum"));
+        server.send(400, "text/plain", String("missing param deviceId"));
 
     int level = server.arg("level").toInt();
+    int deviceId = server.arg("deviceId").toInt();
 
-    //setDimmer(level); TODO: Implement Device Numbers to get references to the specific Device
+    DeviceManager* deviceManager = DeviceManager::getInstance();
+    Device* device = deviceManager->getDevice(deviceId);
 
-    server.send(200, "text/plain", String(level));
+    //check if device is dimmable, send an error code if not
+    //runtime polymorphism is not possible on this (RTTI disabled on esp32 to save flash)
+    if (device->setLevel(level))
+        server.send(200, "text/plain", String("Device " + String(deviceId) +  " set to " + String(level)));
+    else
+        server.send(400, "text/plain", String("Device " + String(deviceId) + "is not dimmable or failed to dim"));
 }

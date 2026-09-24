@@ -7,6 +7,9 @@
 class Device {
   public:
     virtual bool setup() = 0;
+    virtual bool setState(const bool newState) const {return false;}
+    virtual bool setLevel(const uint8_t level) const {return false;}
+    virtual uint8_t getLevel() const {return 0;}
     virtual ~Device() = default;
 
 };
@@ -14,11 +17,11 @@ class Device {
 class Toggleable final : public Device {
   private:
     uint8_t togglePin;
-    std::string nickname;
+    String nickname;
 
 
   public:
-    Toggleable(const uint8_t tPin, const std::string& n) {
+    Toggleable(const uint8_t tPin, const String& n) {
       togglePin = tPin;
       nickname = n;
     }
@@ -28,8 +31,9 @@ class Toggleable final : public Device {
       return true;
     }
 
-    void setState(const bool newState) const {
+    bool setState(const bool newState) const override {
       digitalWrite(togglePin, newState);
+      return true;
     }
 
     bool getState() const {
@@ -74,7 +78,11 @@ class Dimmable final : public Device {
       return true;
     }
 
-    bool setLevel(const uint8_t level) const {
+    bool setState(const bool newState) const override {
+        return rbdimmer_set_level(dimmer, newState ? 100 : 0) != RBDIMMER_OK;
+      }
+
+    bool setLevel(const uint8_t level) const override {
       if (level < 0 || level > 100)
         return false;
 
@@ -82,6 +90,10 @@ class Dimmable final : public Device {
         return false;
 
       return true;
+    }
+
+    uint8_t getLevel() const override {
+      return rbdimmer_get_level(dimmer);
     }
 };
 

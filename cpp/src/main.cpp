@@ -24,13 +24,17 @@ void setup() {
     bool wifiConnected = connectToWifi(credentials.WIFI_SSID, credentials.WIFI_PASSWORD);
     if (!wifiConnected) return;
 
+    //Start Server
     startServer();
 
-    Device* dimmer1 = new Dimmable(32, 33);
-    dimmer1->setup();
+    //Setup Device Manager
+    DeviceManager* deviceManager = DeviceManager::getInstance();
+    deviceManager->addDevice(new Dimmable(32, 33));
 }
 
 
 void loop() {
     server.handleClient();
 }
+
+
