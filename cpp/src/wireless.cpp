@@ -3,6 +3,7 @@
 #include "device_manager.h"
 #include "device.h"
 
+//TODO: implement device manager
 void enableLED() {
     //enable all connected devices
     if (!server.hasArg("pin")) {
@@ -24,6 +25,7 @@ void enableLED() {
     server.send(200, "text/plain", String(pin_number));
 }
 
+//TODO: implement device manager
 void disableLED() {
     //disable all connected devices
     if (!server.hasArg("pin")) {
@@ -45,6 +47,7 @@ void disableLED() {
     server.send(200, "text/plain", String(pin_number));
 }
 
+//TODO: implement device manager
 void setLevel() {
     if (!server.hasArg("level"))
         server.send(400, "text/plain", String("missing param level"));

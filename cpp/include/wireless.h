@@ -49,7 +49,7 @@ inline bool connectToWifi(const String& ssid, const String& password) {
 inline void startServer() {
     server.on("/enable", HTTP_GET, enableLED);
     server.on("/disable", HTTP_GET, disableLED);
-    server.on("/level", HTTP_GET, setLevel);
+    server.on("/set", HTTP_GET, setLevel);
 
     server.begin();
 
