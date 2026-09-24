@@ -16,7 +16,7 @@
 #define IO_MUX_FUNC_SEL_MASK  (0x7 << IO_MUX_FUNC_SEL_SHIFT)
 
 //Specific pin definitions
-#define BUILTIN_LED_PIN 2
+#define BUILTIN_LED 2
 
 /*
  * Converts pin number to address offset of IO_MUX_GPIO_BASE
@@ -48,7 +48,7 @@ inline uint32_t getMuxAddressOffset(uint8_t pin) {
 }
 
 //Mark a pin as a gpio out
-inline void enablePinAsOutput(uint8_t pin) {
+inline void enablePinAsOutput(const uint8_t pin) {
     // Select GPIO function (Function 2)
     volatile uint32_t *currentPinMux = (volatile uint32_t *) (IO_MUX_GPIO_BASE + getMuxAddressOffset(pin));
     *currentPinMux = (*currentPinMux & ~IO_MUX_FUNC_SEL_MASK) | (2 << IO_MUX_FUNC_SEL_SHIFT);
@@ -57,8 +57,14 @@ inline void enablePinAsOutput(uint8_t pin) {
     GPIO_ENABLE_W1TS = (1 << pin);
 }
 
+//Read the value of a pin's state
+//Assumes a pin is setup as an output
+inline bool readPinValue(const uint8_t pin) {
+    return GPIO_OUT & (1 << pin);
+}
+
 //Set a pin to be on or off
-inline void digitalWrite(uint8_t pin, bool value)
+inline void digitalWrite(const uint8_t pin, const bool value)
 {
     if (value)
         GPIO_OUT_W1TS = (1 << pin);
@@ -67,8 +73,8 @@ inline void digitalWrite(uint8_t pin, bool value)
 }
 
 //Toggle a pin and return it's current state
-inline int togglePin(uint8_t pin) {
-    bool previousState  = GPIO_OUT & (1 << pin);
+inline int togglePin(const uint8_t pin) {
+    bool previousState  = readPinValue(pin);
 
     if (previousState)
         GPIO_OUT_W1TC = (1 << pin); //set LOW

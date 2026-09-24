@@ -26,7 +26,7 @@ def run_set(command_name, params):
             level = params[1]
             current_zone = zone_data.get(str(zone_number))
 
-            response = requests.get(f'http://{current_zone.get("ip")}/level?level=' + str(level))
+            response = requests.get(f'http://{current_zone.get("ip")}/set?level=' + str(level))
             print(response.text)
 
         case _:

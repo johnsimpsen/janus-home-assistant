@@ -1,21 +1,6 @@
 #include "wireless.h"
 
-#include "dimming.h"
 #include "gpio.h"
-
-//toggle
-void toggleLED() {
-    if (!server.hasArg("gpio")) {
-        server.send(400, "text/plain", "Missing gpio parameter");
-        return;
-    }
-
-    int gpio = server.arg("gpio").toInt();
-
-    std::string ledStatus = std::to_string(togglePin(gpio));
-    Serial.println("LED API");
-    server.send(200, "text/plain", ledStatus.c_str());
-}
 
 void enableLED() {
     //enable all connected devices
@@ -62,10 +47,12 @@ void disableLED() {
 void setLevel() {
     if (!server.hasArg("level"))
         server.send(400, "text/plain", String("missing param level"));
+    if (!server.hasArg("deviceNum"))
+        server.send(400, "text/plain", String("missing param deviceNum"));
 
     int level = server.arg("level").toInt();
 
-    setDimmer(level);
+    //setDimmer(level); TODO: Implement Device Numbers to get references to the specific Device
 
     server.send(200, "text/plain", String(level));
 }

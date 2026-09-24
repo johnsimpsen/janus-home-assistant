@@ -1,14 +1,15 @@
 #include "wireless.h"
 #include "environment.h"
 #include "gpio.h"
-#include "dimming.h"
+#include "device_manager.h"
+#include "device.h"
 
 WebServer server(80);
 
 void setup() {
     Serial.begin(115200);
 
-    enablePinAsOutput(BUILTIN_LED_PIN);
+    enablePinAsOutput(BUILTIN_LED);
     enablePinAsOutput(12);
     enablePinAsOutput(13);
     enablePinAsOutput(14);
@@ -19,15 +20,14 @@ void setup() {
     bool hasNetworkCredentials = readNetworkCredentials(credentials);
     if (!hasNetworkCredentials) return;
 
-    //Connect to WiFi
+    //Connect to Wi-Fi
     bool wifiConnected = connectToWifi(credentials.WIFI_SSID, credentials.WIFI_PASSWORD);
     if (!wifiConnected) return;
 
-    //Start Server and define api endpoints
     startServer();
-    GPIO_OUT_W1TS |= (1 << BUILTIN_LED_PIN);
 
-    setupDimmer();
+    Device* dimmer1 = new Dimmable(32, 33);
+    dimmer1->setup();
 }
 
 

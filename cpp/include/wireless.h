@@ -3,6 +3,7 @@
 
 #include <WiFi.h>
 #include <WebServer.h>
+#include "gpio.h"
 
 #define WIFI_TIMEOUT 20000
 
@@ -13,7 +14,7 @@ void enableLED();
 void disableLED();
 void setLevel();
 
-//Connect to the wifi network
+//Connect to the Wi-Fi network
 inline bool connectToWifi(const String& ssid, const String& password) {
     Serial.print("Connecting to WiFi");
 
@@ -22,7 +23,7 @@ inline bool connectToWifi(const String& ssid, const String& password) {
 
     unsigned long startTime = millis();
 
-    //check if wifi is connected for 20 seconds
+    //check if Wi-Fi is connected for 20 seconds
     while (WiFi.status() != WL_CONNECTED && millis() - startTime < WIFI_TIMEOUT) {
         Serial.print(".");
         delay(500);
@@ -30,13 +31,13 @@ inline bool connectToWifi(const String& ssid, const String& password) {
 
     Serial.println("");
 
-    //wifi connection was unsuccessful
+    //Wi-Fi connection was unsuccessful
     if (WiFi.status() != WL_CONNECTED) {
         Serial.println("WiFi connection failed");
         return false;
     }
 
-    //wifi connection was successful
+    //Wi-Fi connection was successful
     Serial.println("WiFi connection successful");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
@@ -52,6 +53,8 @@ inline void startServer() {
     server.on("/level", HTTP_GET, setLevel);
 
     server.begin();
+
+    digitalWrite(BUILTIN_LED, true);
     Serial.println("Server started");
 }
 
