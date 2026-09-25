@@ -8,7 +8,7 @@ class Device {
   public:
     virtual bool setup() = 0;
     virtual bool setState(const bool newState) const {return false;}
-    virtual bool setLevel(const uint8_t level) const {return false;}
+    virtual bool setLevel(const uint8_t level) const {return false;} //runtime polymorphism is not possible due to RTTI disabled on esp32 to save flash
     virtual uint8_t getLevel() const {return 0;}
     virtual ~Device() = default;
 
@@ -17,13 +17,11 @@ class Device {
 class Toggleable final : public Device {
   private:
     uint8_t togglePin;
-    String nickname;
-
 
   public:
-    Toggleable(const uint8_t tPin, const String& n) {
+    Toggleable(const uint8_t tPin) {
       togglePin = tPin;
-      nickname = n;
+
     }
 
     bool setup() override{

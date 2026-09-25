@@ -3,51 +3,55 @@
 #include "device_manager.h"
 #include "device.h"
 
-//TODO: implement device manager
 void enableLED() {
     //enable all connected devices
-    if (!server.hasArg("pin")) {
-        for (uint8_t pin = 12; pin <= 14; pin++) {
-            digitalWrite(pin, true);
-        }
-
-        Serial.println("All devices enabled");
-        server.send(200, "text/plain", String("all"));
+    if (!server.hasArg("deviceId")) {
+        server.send(400, "text/plain", String("missing param"));
         return;
     }
 
     //enable one specific device
-    int pin_number = server.arg("pin").toInt();
+    int deviceId = server.arg("deviceId").toInt();
 
-    digitalWrite(pin_number, true);
+    DeviceManager* deviceManager = DeviceManager::getInstance();
+    Device* device = deviceManager->getDevice(deviceId);
 
-    Serial.println("Pin " + String(pin_number) + " enabled");
-    server.send(200, "text/plain", String(pin_number));
+    if (!device) {
+        server.send(400, "text/plain", String("Device " + String(deviceId) + " could not be found"));
+        return;
+    }
+
+    if (device->setState(true))
+        server.send(200, "text/plain", String("Device " + String(deviceId) +  " enabled"));
+    else
+        server.send(400, "text/plain", String("Device " + String(deviceId) + " failed to enable"));
 }
 
-//TODO: implement device manager
 void disableLED() {
     //disable all connected devices
-    if (!server.hasArg("pin")) {
-        for (uint8_t pin = 12; pin <= 14; pin++) {
-            digitalWrite(pin, false);
-        }
-
-        Serial.println("All devices disabled");
-        server.send(200, "text/plain", String("all"));
+    if (!server.hasArg("deviceId")) {
+        server.send(400, "text/plain", String("missing param"));
         return;
     }
 
-    //enable one specific device
-    int pin_number = server.arg("pin").toInt();
+    //disable one specific device
+    int deviceId = server.arg("deviceId").toInt();
 
-    digitalWrite(pin_number, false);
+    DeviceManager* deviceManager = DeviceManager::getInstance();
+    Device* device = deviceManager->getDevice(deviceId);
 
-    Serial.println("Pin " + String(pin_number) + " disabled");
-    server.send(200, "text/plain", String(pin_number));
+    if (!device) {
+        server.send(400, "text/plain", String("Device " + String(deviceId) + " could not be found"));
+        return;
+    }
+
+    if (device->setState(false))
+        server.send(200, "text/plain", String("Device " + String(deviceId) +  " disabled"));
+    else
+        server.send(400, "text/plain", String("Device " + String(deviceId) + " failed to disable"));
 }
 
-//TODO: implement device manager
+
 void setLevel() {
     if (!server.hasArg("level"))
         server.send(400, "text/plain", String("missing param level"));
@@ -60,8 +64,12 @@ void setLevel() {
     DeviceManager* deviceManager = DeviceManager::getInstance();
     Device* device = deviceManager->getDevice(deviceId);
 
+    if (!device) {
+        server.send(400, "text/plain", String("Device " + String(deviceId) + " could not be found"));
+        return;
+    }
+
     //check if device is dimmable, send an error code if not
-    //runtime polymorphism is not possible on this (RTTI disabled on esp32 to save flash)
     if (device->setLevel(level))
         server.send(200, "text/plain", String("Device " + String(deviceId) +  " set to " + String(level)));
     else

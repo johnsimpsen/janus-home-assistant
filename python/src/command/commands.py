@@ -13,7 +13,7 @@ def run_enable_disable(command_name, params):
             if device_number == "all":
                 response = requests.get(f'http://{current_zone.get("ip")}/{command_name}')
             else:
-                response = requests.get(f'http://{current_zone.get("ip")}/{command_name}?pin={str(device_number)}')
+                response = requests.get(f'http://{current_zone.get("ip")}/{command_name}?deviceId={str(device_number)}')
             print(response.text)
 
         case _:

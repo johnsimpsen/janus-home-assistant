@@ -29,7 +29,9 @@ void setup() {
 
     //Setup Device Manager
     DeviceManager* deviceManager = DeviceManager::getInstance();
-    deviceManager->addDevice(new Dimmable(32, 33));
+    deviceManager->addDevice(new Toggleable(12));
+    deviceManager->addDevice(new Toggleable(13));
+    deviceManager->addDevice(new Toggleable(14));
 }
 
 
