@@ -32,6 +32,8 @@ void setup() {
     deviceManager->addDevice(new Toggleable(12));
     deviceManager->addDevice(new Toggleable(13));
     deviceManager->addDevice(new Toggleable(14));
+    deviceManager->addDevice(new Dimmable(32, 33));
+    Serial.println(deviceManager->getCount());
 }
 
 

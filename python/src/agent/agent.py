@@ -134,4 +134,6 @@ chain = prompt | model
 
 def prompt_llm(user_input):
     """returns a specific command based on user input"""
-    return chain.invoke({"user_input": user_input})
+    output = chain.invoke({"user_input": user_input})
+    print(output)
+    return output

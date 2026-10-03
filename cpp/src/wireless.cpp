@@ -55,7 +55,7 @@ void disableLED() {
 void setLevel() {
     if (!server.hasArg("level"))
         server.send(400, "text/plain", String("missing param level"));
-    if (!server.hasArg("deviceNum"))
+    if (!server.hasArg("deviceId"))
         server.send(400, "text/plain", String("missing param deviceId"));
 
     int level = server.arg("level").toInt();

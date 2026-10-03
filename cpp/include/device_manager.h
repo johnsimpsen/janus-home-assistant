@@ -11,6 +11,10 @@ class DeviceManager {
         uint8_t count = 0;
 
     public:
+        int getCount() {
+            return count;
+        }
+
         static DeviceManager* getInstance() {
             if (!instance)
                 instance = new DeviceManager();
