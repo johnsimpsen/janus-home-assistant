@@ -26,22 +26,22 @@
 */
 inline uint32_t getMuxAddressOffset(uint8_t pin) {
     switch (pin) {
-        case 32:
-            return 0x1C;
-        case 33:
-            return 0x20;
-        case 14: //MTMS
-            return 0x30;
+        case 2: //GPIO2
+            return 0x40;
         case 12: //MTDI
             return 0x34;
         case 13: //MTCK
             return 0x38;
-        case 2: //GPIO2
-            return 0x40;
+        case 14: //MTMS
+            return 0x30;
         case 18: //GPIO18
             return 0x70;
         case 19: //GPIO19
             return 0x74;
+        case 32:
+            return 0x1C;
+        case 33:
+            return 0x20;
         default:
             return 0x00;
     }
