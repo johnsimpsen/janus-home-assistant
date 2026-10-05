@@ -8,20 +8,35 @@ class Device {
   protected:
     std::string nickname;
 
+    virtual void print(std::ostream& os) const {
+      os << "Nickname: " << nickname << std::endl;
+    }
+
   public:
     virtual bool setup() = 0;
     virtual bool setState(const bool newState) const {return false;}
     virtual bool setLevel(const uint8_t level) const {return false;} //runtime polymorphism is not possible due to RTTI disabled on esp32 to save flash
     virtual uint8_t getLevel() const {return 0;}
     virtual ~Device() = default;
-    std::string getNickname() const {return nickname;}
-    void setNickname(const std::string& newNickname) {nickname = newNickname;}
 
+    void setNickname(const std::string& newNickname) {nickname = newNickname;}
+    std::string getNickname() const {return nickname;}
+
+    friend std::ostream& operator<<(std::ostream& os, const Device& device) {
+      device.print(os);
+      return os;
+    }
 };
 
 class Toggleable final : public Device {
   private:
     uint8_t togglePin;
+
+    void print(std::ostream& os) const override {
+      Device::print(os);
+      os << "Toggle Pin: " << static_cast<int>(togglePin) << std::endl;
+      os << "State: " << std::boolalpha << getState() << std::endl;
+    }
 
   public:
     Toggleable(const uint8_t tPin) {
@@ -55,6 +70,12 @@ class Dimmable final : public Device {
     uint8_t zeroCrossPin;
     uint8_t dimmerPin;
 
+  void print(std::ostream& os) const override {
+    Device::print(os);
+    os << "Zero Cross Pin: " << static_cast<int>(zeroCrossPin) << std::endl;
+    os << "Dimmer Pin: " << static_cast<int>(dimmerPin) << std::endl;
+    os << "Level: " << static_cast<int>(getLevel()) << std::endl;
+  }
 
   public:
     Dimmable(const uint8_t zcPin, const uint8_t dPin) {

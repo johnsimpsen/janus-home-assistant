@@ -59,6 +59,15 @@ class DeviceManager {
             return true;
         }
 
+        friend std::ostream& operator<<(std::ostream& os, const DeviceManager& manager) {
+            for (int i = 0; i < manager.count; i++) {
+                os << "Device Id: " << i << std::endl;
+                os << *manager.devices.at(i) << std::endl;
+            }
+
+            return os;
+        }
+
 };
 
 #endif //DEVICE_MANAGER_H

@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "wireless.h"
 #include "environment.h"
 #include "gpio.h"
@@ -30,14 +32,11 @@ void setup() {
     deviceManager->addDevice(new Toggleable(13));
     deviceManager->addDevice(new Toggleable(14, "red"));
     deviceManager->addDevice(new Toggleable(32));
+    deviceManager->addDevice(new Dimmable(33, 34, "FirstDimmer"));
 
-
-    for (int i = 0; i < 4; i++) {
-        std::string nick = deviceManager->getDevice(i)->getNickname();
-        Serial.println(nick.c_str());
-    }
-
-
+    std::ostringstream oss;
+    oss << *deviceManager;
+    Serial.println(oss.str().c_str());
 }
 
 

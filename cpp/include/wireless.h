@@ -54,7 +54,7 @@ inline void startServer() {
     server.begin();
 
     digitalWrite(BUILTIN_LED, true);
-    Serial.println("Server started");
+    Serial.println("Server started\n");
 }
 
 #endif //WIFI_H
