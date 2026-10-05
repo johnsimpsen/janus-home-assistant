@@ -5,12 +5,17 @@
 #define PHASE_NUM 0
 
 class Device {
+  protected:
+    std::string nickname;
+
   public:
     virtual bool setup() = 0;
     virtual bool setState(const bool newState) const {return false;}
     virtual bool setLevel(const uint8_t level) const {return false;} //runtime polymorphism is not possible due to RTTI disabled on esp32 to save flash
     virtual uint8_t getLevel() const {return 0;}
     virtual ~Device() = default;
+    std::string getNickname() const {return nickname;}
+    void setNickname(const std::string& newNickname) {nickname = newNickname;}
 
 };
 
@@ -21,7 +26,12 @@ class Toggleable final : public Device {
   public:
     Toggleable(const uint8_t tPin) {
       togglePin = tPin;
+      nickname = "";
+    }
 
+    Toggleable(const uint8_t tPin, const std::string& nick) {
+      togglePin = tPin;
+      nickname = nick;
     }
 
     bool setup() override{
@@ -50,6 +60,13 @@ class Dimmable final : public Device {
     Dimmable(const uint8_t zcPin, const uint8_t dPin) {
       zeroCrossPin = zcPin;
       dimmerPin = dPin;
+      nickname = "";
+    }
+
+    Dimmable(const uint8_t zcPin, const uint8_t dPin, const std::string& nick) {
+      zeroCrossPin = zcPin;
+      dimmerPin = dPin;
+      nickname = nick;
     }
 
     bool setup() override {

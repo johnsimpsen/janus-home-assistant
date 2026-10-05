@@ -10,9 +10,6 @@ void setup() {
     Serial.begin(115200);
 
     enablePinAsOutput(BUILTIN_LED);
-    enablePinAsOutput(12);
-    enablePinAsOutput(13);
-    enablePinAsOutput(14);
 
     NetworkCredentials credentials;
 
@@ -31,9 +28,16 @@ void setup() {
     DeviceManager* deviceManager = DeviceManager::getInstance();
     deviceManager->addDevice(new Toggleable(12));
     deviceManager->addDevice(new Toggleable(13));
-    deviceManager->addDevice(new Toggleable(14));
-    deviceManager->addDevice(new Dimmable(32, 33));
-    Serial.println(deviceManager->getCount());
+    deviceManager->addDevice(new Toggleable(14, "red"));
+    deviceManager->addDevice(new Toggleable(32));
+
+
+    for (int i = 0; i < 4; i++) {
+        std::string nick = deviceManager->getDevice(i)->getNickname();
+        Serial.println(nick.c_str());
+    }
+
+
 }
 
 
