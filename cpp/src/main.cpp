@@ -37,6 +37,7 @@ void setup() {
     std::ostringstream oss;
     oss << *deviceManager;
     Serial.println(oss.str().c_str());
+
 }
 
 
