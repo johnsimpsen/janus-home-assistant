@@ -1,21 +1,24 @@
 {
-  "zones": {
-    "1": {
-      "ip": "127.0.0.1",
-      "devices": {
-        "12": {
-          "nickname": "red",
-          "dimmable": true
-        },
-        "13": {
-          "nickname": "green",
-          "dimmable": true
-        },
-        "14": {
-          "nickname": "blue",
-          "dimmable": true
+  "zones": [
+    {
+      "ip": "192.168.1.167",
+      "devices": [
+        {
+          "nickname": "red_led",
+          "dimmable": false,
+          "togglePin": 32
         }
-      }
+      ]
+    },
+    {
+      "ip": "192.168.1.64",
+      "devices": [
+        {
+          "nickname": "lamp",
+          "dimmable": false,
+          "togglePin": 32
+        }
+      ]
     }
-  }
+  ]
 }

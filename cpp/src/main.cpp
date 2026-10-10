@@ -26,14 +26,6 @@ void setup() {
     //Start Server
     startServer();
 
-    //Setup Device Manager
-    DeviceManager* deviceManager = DeviceManager::getInstance();
-    deviceManager->addDevice(new Toggleable(32, "lamp"));
-
-    std::ostringstream oss;
-    oss << *deviceManager;
-    Serial.println(oss.str().c_str());
-
 }
 
 

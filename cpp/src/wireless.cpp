@@ -1,6 +1,80 @@
 #include "wireless.h"
+
+#include <sstream>
+
 #include "device_manager.h"
 #include "device.h"
+
+void setupDevices() {
+    if (!server.hasArg("plain")) {
+        server.send(400, "text/plain", "Missing JSON body");
+        return;
+    }
+
+    String json = server.arg("plain");
+
+    JsonDocument doc;
+    DeserializationError error = deserializeJson(doc, json);
+
+    if (error) {
+        server.send(400, "text/plain", "Invalid JSON");
+        return;
+    }
+
+
+    JsonArray devices = doc["devices"].as<JsonArray>();
+    DeviceManager* deviceManager = DeviceManager::getInstance();
+
+    uint8_t count = 0;
+    for (auto device : devices) {
+        bool isDimmable = device["dimmable"];
+        std::string nickname = device["nickname"] | ""; //empty string if nickname is not there
+
+        if (isDimmable) {
+            uint8_t zeroCrossPin = device["zeroCrossPin"] | 0;
+            uint8_t dimmerPin = device["dimmerPin"] | 0;
+
+            if (!zeroCrossPin || !dimmerPin) {
+                Serial.println("Device number " + String(count) + " has invalid data");
+                server.send(400, "text/plain", "Invalid device data");
+                return;
+            }
+
+            Device* newDevice = new Dimmable(zeroCrossPin, dimmerPin, nickname);
+
+            if (!deviceManager->addDevice(newDevice)) {
+                delete newDevice;
+                server.send(400, "text/plain", "Something went wrong with adding device " + String(count));
+                return;
+            }
+        }
+        else {
+            uint8_t togglePin = device["togglePin"] | 0;
+
+            if (!togglePin) {
+                Serial.println("Device number " + String(count) + " has invalid data");
+                server.send(400, "text/plain", "Invalid device data");
+                return;
+            }
+
+            Device* newDevice = new Toggleable(togglePin, nickname);
+
+            if (!deviceManager->addDevice(newDevice)) {
+                delete newDevice;
+                server.send(400, "text/plain", "Something went wrong with adding device " + String(count));
+                return;
+            }
+        }
+
+        count++;
+    }
+
+    server.send(200, "text/plain", String("Devices added successfully"));
+
+    std::ostringstream oss;
+    oss << *deviceManager;
+    Serial.println(oss.str().c_str());
+}
 
 void enableLED() {
     //enable all connected devices

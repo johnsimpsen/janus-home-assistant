@@ -3,13 +3,14 @@
 
 #include <WiFi.h>
 #include <WebServer.h>
+#include <ArduinoJson.h>
 #include "gpio.h"
 
 #define WIFI_TIMEOUT 20000
 
 extern WebServer server;
 
-void toggleLED();
+void setupDevices();
 void enableLED();
 void disableLED();
 void setLevel();
@@ -50,6 +51,7 @@ inline void startServer() {
     server.on("/enable", HTTP_GET, enableLED);
     server.on("/disable", HTTP_GET, disableLED);
     server.on("/set", HTTP_GET, setLevel);
+    server.on("/setupDevices", HTTP_POST, setupDevices);
 
     server.begin();
 
