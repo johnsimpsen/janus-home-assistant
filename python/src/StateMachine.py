@@ -2,7 +2,6 @@ from enum import Enum
 from src.agent.agent import prompt_llm
 from src.command.commands import parse_command, run_command
 
-
 class _Context:
     def __init__(self):
         self.user_input = None
@@ -37,10 +36,11 @@ class State(Enum):
 
 
 class StateMachine:
-    def __init__(self):
+    def __init__(self, debug_mode=False):
         self._current_state = State.IDLE # begin as IDLE
         self.context = _Context() # data about the current request
         self.running = True # is the agent currently running?
+        self.DEBUG_MODE = debug_mode
 
     def run(self):
         """manages the current behavior based on the state"""
@@ -91,7 +91,10 @@ class StateMachine:
             self.set_state(State.QUIT)
             return
 
-        self.context.llm_output = prompt_llm(user_input)
+        if self.DEBUG_MODE:
+            self.context.llm_output = user_input
+        else:
+            self.context.llm_output = prompt_llm(user_input)
 
         self.set_state(State.VALIDATING)
 
@@ -115,7 +118,8 @@ class StateMachine:
 
     def _error(self, error):
         """handle any errors, clear context, then transition back to IDLE"""
-        print(f"An error has occurred: {error}")
+        self.context.error_status = error
+        #print(f"An error has occurred: {error}")
         print(self.context)
 
         self.context.reset_current_request()
