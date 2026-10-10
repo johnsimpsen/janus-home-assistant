@@ -1,5 +1,4 @@
 #include "wireless.h"
-#include "gpio.h"
 #include "device_manager.h"
 #include "device.h"
 
