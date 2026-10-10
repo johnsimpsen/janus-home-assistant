@@ -13,9 +13,6 @@ class DeviceManager {
         uint8_t count = 0;
 
     public:
-        int getCount() {
-            return count;
-        }
 
         static DeviceManager* getInstance() {
             if (!instance)
@@ -57,6 +54,16 @@ class DeviceManager {
             nicknames.insert({nickname, count});
             devices.insert({count++, device});
             return true;
+        }
+
+        void clearDevices() {
+            for (const auto& device : devices) {
+                delete device.second;
+            }
+
+            devices.clear();
+            nicknames.clear();
+            count = 0;
         }
 
         friend std::ostream& operator<<(std::ostream& os, const DeviceManager& manager) {

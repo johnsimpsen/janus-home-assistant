@@ -6,6 +6,10 @@
 #include "device.h"
 
 void setupDevices() {
+    //Clear existing devices
+    DeviceManager* deviceManager = DeviceManager::getInstance();
+    deviceManager->clearDevices();
+
     if (!server.hasArg("plain")) {
         server.send(400, "text/plain", "Missing JSON body");
         return;
@@ -23,7 +27,6 @@ void setupDevices() {
 
 
     JsonArray devices = doc["devices"].as<JsonArray>();
-    DeviceManager* deviceManager = DeviceManager::getInstance();
 
     uint8_t count = 0;
     for (auto device : devices) {
