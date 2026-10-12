@@ -1,9 +1,9 @@
 #include "wireless.h"
-
-#include <sstream>
-
 #include "device_manager.h"
 #include "device.h"
+
+#include <sstream>
+#include <ArduinoJson.h>
 
 void setupDevices() {
     //Clear existing devices
@@ -79,7 +79,7 @@ void setupDevices() {
     Serial.println(oss.str().c_str());
 }
 
-void enableLED() {
+void enableDevice() {
     //enable all connected devices
     if (!server.hasArg("deviceId")) {
         server.send(400, "text/plain", String("missing param"));
@@ -103,7 +103,7 @@ void enableLED() {
         server.send(400, "text/plain", String("Device " + String(deviceId) + " failed to enable"));
 }
 
-void disableLED() {
+void disableDevice() {
     //disable all connected devices
     if (!server.hasArg("deviceId")) {
         server.send(400, "text/plain", String("missing param"));
@@ -128,7 +128,7 @@ void disableLED() {
 }
 
 
-void setLevel() {
+void setDeviceLevel() {
     if (!server.hasArg("level"))
         server.send(400, "text/plain", String("missing param level"));
     if (!server.hasArg("deviceId"))
