@@ -1,10 +1,6 @@
-#include <sstream>
-
 #include "wireless.h"
 #include "environment.h"
 #include "gpio.h"
-#include "device_manager.h"
-#include "device.h"
 
 WebServer server(80);
 
