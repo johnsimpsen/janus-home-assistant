@@ -6,18 +6,16 @@ WebServer server(80);
 
 void setup() {
     Serial.begin(115200);
-
     enablePinAsOutput(BUILTIN_LED);
 
-    NetworkCredentials credentials;
-
     //Get Network Credentials
-    bool hasNetworkCredentials = readNetworkCredentials(credentials);
-    if (!hasNetworkCredentials) return;
+    NetworkCredentials credentials;
+    if (!readNetworkCredentials(credentials))
+        return;
 
     //Connect to Wi-Fi
-    bool wifiConnected = connectToWifi(credentials.WIFI_SSID, credentials.WIFI_PASSWORD);
-    if (!wifiConnected) return;
+    if (!connectToWifi(credentials.WIFI_SSID, credentials.WIFI_PASSWORD))
+        return;
 
     //Start Server
     startServer();
