@@ -10,8 +10,13 @@
 extern WebServer server;
 
 void setupDevices();
+
+void enableAllDevices();
 void enableDevice();
+
+void disableAllDevices();
 void disableDevice();
+
 void setDeviceLevel();
 
 //Connect to the Wi-Fi network
@@ -47,10 +52,10 @@ inline bool connectToWifi(const String& ssid, const String& password) {
 
 //Define all HTTP routes and then start the server
 inline void startServer() {
+    server.on("/setupDevices", HTTP_POST, setupDevices);
     server.on("/enable", HTTP_GET, enableDevice);
     server.on("/disable", HTTP_GET, disableDevice);
     server.on("/set", HTTP_GET, setDeviceLevel);
-    server.on("/setupDevices", HTTP_POST, setupDevices);
 
     server.begin();
 

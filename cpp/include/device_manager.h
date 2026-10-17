@@ -36,6 +36,17 @@ class DeviceManager {
             return getDevice(deviceId);
         }
 
+        std::vector<std::pair<uint8_t, Device*>> getAllDevices() const {
+            std::vector<std::pair<uint8_t, Device*>> result;
+            result.reserve(devices.size());
+
+            for (const auto& [deviceId, device] : devices) {
+                result.emplace_back(deviceId, device);
+            }
+
+            return result;
+        }
+
 
         bool addDevice(Device* device) {
             if (!device)

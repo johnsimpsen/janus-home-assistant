@@ -1,25 +1,41 @@
 import requests
 from src.network.zones import zone_data
 
-#TODO: replace pin with deviceId to fully implement device manager
+
 def run_enable_disable(command_name, params):
-    """run the enable/disable command"""
-    match len(params): #determine behavior based on number of parameters passed
+    """
+    Makes an HTTP request to the specified zone and device to enable or disable it.
+    :param command_name: name of the command
+    :param params: [zone number, device number]
+    :raise Incorrect number of parameters:
+    :raise HTTP Timeout:
+    """
+
+    match len(params):  # determine behavior based on number of parameters passed
         case 2:
             zone_number = params[0]
             device_number = params[1]
             current_zone = zone_data[int(zone_number)]
 
-            if device_number == "all":
-                response = requests.get(f'http://{current_zone.get("ip")}/{command_name}')
-            else:
-                response = requests.get(f'http://{current_zone.get("ip")}/{command_name}?deviceId={str(device_number)}', timeout=5)
+            response = requests.get(
+                f'http://{current_zone.get("ip")}/{command_name}?deviceId={str(device_number)}',
+                timeout=5
+            )
             print(response.text)
 
         case _:
             raise Exception("Incorrect number of parameters")
 
+
 def run_set(command_name, params):
+    """
+    Makes an HTTP request to the specified zone and device to set its specific level
+    :param command_name: name of the command
+    :param params: [zone number, device number, level]
+    :raise Incorrect number of parameters:
+    :raise HTTP Timeout:
+    """
+
     match len(params):  # determine behavior based on number of parameters passed
         case 3:
             zone_number = params[0]
@@ -27,8 +43,10 @@ def run_set(command_name, params):
             level = params[2]
             current_zone = zone_data[int(zone_number)]
 
-
-            response = requests.get(f'http://{current_zone.get("ip")}/set?level={str(level)}&deviceId={device_number}', timeout=5)
+            response = requests.get(
+                f'http://{current_zone.get("ip")}/set?level={str(level)}&deviceId={device_number}',
+                timeout=5
+            )
             print(response.text)
 
         case _:

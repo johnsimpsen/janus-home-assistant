@@ -2,6 +2,7 @@ from enum import Enum
 from src.agent.agent import prompt_llm
 from src.command.commands import parse_command, run_command
 
+
 class _Context:
     def __init__(self):
         self.user_input = None
@@ -37,10 +38,10 @@ class State(Enum):
 
 class StateMachine:
     def __init__(self, debug_mode=False):
-        self._current_state = State.IDLE # begin as IDLE
-        self.context = _Context() # data about the current request
-        self.running = True # is the agent currently running?
-        self.DEBUG_MODE = debug_mode
+        self._current_state = State.IDLE  # begin as IDLE
+        self.context = _Context()  # data about the current request
+        self.running = True  # is the agent currently running?
+        self.DEBUG_MODE = debug_mode  # bypasses llm input
 
     def run(self):
         """manages the current behavior based on the state"""
@@ -84,7 +85,7 @@ class StateMachine:
 
     def _processing(self):
         """speech prompts are converted to text and fed to a llm to be processed into a command"""
-        user_input = input("Prompt: ") # TODO: Replace with speech to text module
+        user_input = input("Prompt: ")  # TODO: Replace with speech to text module
         self.context.user_input = user_input
 
         if user_input.lower() == "q" or user_input.lower() == "quit":
@@ -124,4 +125,3 @@ class StateMachine:
 
         self.context.reset_current_request()
         self.set_state(State.IDLE)  # return to IDLE state after error has been dealt with
-

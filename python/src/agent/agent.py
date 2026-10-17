@@ -1,7 +1,25 @@
 from langchain_ollama.llms import OllamaLLM
 from langchain_core.prompts import ChatPromptTemplate
+import requests
 
-model = OllamaLLM(model="llama3.2")
+model = OllamaLLM(
+    model="llama3.2",
+    keep_alive="30m"
+)
+
+def preload_llm():
+    print("Model loading...")
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={
+            "model": "llama3.2",
+            "keep_alive": "30m"
+        },
+        timeout=None
+    )
+    response.raise_for_status()
+    print("Model loaded")
+
 
 template = """
 You are an AI home assistant and multimedia controller named Janus.

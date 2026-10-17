@@ -10,6 +10,7 @@ with open(file_path, 'r') as file:
 
 
 def setup_all_zones():
+    """attempts to communicate with all zones located identified in data/zones.json"""
     threads = []
 
     for i, zone in enumerate(zone_data):
