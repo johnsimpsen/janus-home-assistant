@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import requests
 import threading
+from main.
 
 file_path = Path(__file__).parent.parent.parent / "data" / "zones.json"
 
