@@ -64,10 +64,8 @@ function_map = {
 def parse_command(input_command):
     """separate the command and its parameters"""
     arr = input_command.split()
-    command = arr[0]
+    command = arr[0].lower()
     params = arr[1:]
-
-    command = command.lower()
 
     for i in range(len(arr)):
         arr[i] = arr[i].lower()
