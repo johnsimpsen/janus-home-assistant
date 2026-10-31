@@ -73,9 +73,7 @@ ZONE AND DEVICE IDENTIFICATION:
 
 3. Do not confuse a zone number with a device number.
 
-4. If no device is explicitly specified, use "all".
-
-5. The device number must belong to the specified zone.
+4. The device number must belong to the specified zone.
 
 
 COMMAND FORMAT:

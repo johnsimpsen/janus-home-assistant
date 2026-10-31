@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import requests
 import threading
+from main.
 
 file_path = Path(__file__).parent.parent.parent / "data" / "zones.json"
 
@@ -24,7 +25,7 @@ def setup_all_zones():
 
 def setup_zone(current_zone, zone_number):
     current_zone_ip = current_zone.get("ip")
-    print(current_zone)
+    #print(current_zone)
 
     try:
         response = requests.post(
@@ -38,5 +39,5 @@ def setup_zone(current_zone, zone_number):
         print(response.text)
 
     except Exception as e:
-        print(str(current_zone_ip) + " was unresponsive")
+        print(str(current_zone_ip) + " was unresponsive\n")
 
