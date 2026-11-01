@@ -7,6 +7,7 @@ model = OllamaLLM(
     keep_alive="30m"
 )
 
+
 def preload_llm():
     print("Model loading...")
     response = requests.post(

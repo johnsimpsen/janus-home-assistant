@@ -15,6 +15,7 @@ if __name__ == "__main__":
         setup_all_zones()
         t.join()
     else:
+        print("DEBUG MODE ENABLED")
         setup_all_zones()
 
     assistant = StateMachine(debug_mode=DEBUG_MODE_ENABLED)

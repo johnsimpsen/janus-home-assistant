@@ -81,15 +81,17 @@ class StateMachine:
 
     def _listening(self):
         """listens for speaking and then audio is converted to text"""
-        self.context.user_input = listen()
+        if not self.DEBUG_MODE:
+            self.context.user_input = listen()
 
         self.set_state(State.PROCESSING)
 
     def _processing(self):
         """user speech text is fed to a llm to be processed into a command"""
-        #user_input = input("Prompt: ")
-        #self.context.user_input = user_input
+        if self.DEBUG_MODE:
+            self.context.user_input = input("Prompt: ")
 
+        # check if the program should be ended
         if self.context.user_input.lower() == "q" or self.context.user_input.lower() == "quit":
             self.set_state(State.QUIT)
             return
