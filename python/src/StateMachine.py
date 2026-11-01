@@ -1,4 +1,5 @@
 from enum import Enum
+from src.listener.listener import listen
 from src.agent.agent import prompt_llm
 from src.command.commands import parse_command, run_command
 
@@ -12,6 +13,7 @@ class _Context:
         self.error_status = None
 
     def reset_current_request(self):
+        """current request is cleared and a new request may be started"""
         self.user_input = None
         self.llm_output = None
         self.command = None
@@ -23,11 +25,11 @@ class _Context:
                 f"llm_output: {self.llm_output}\n"
                 f"command: {self.command}\n"
                 f"response: {self.response}\n"
-                f"error: {self.error_status}")
+                f"error: {self.error_status}\n")
 
 
 class State(Enum):
-    IDLE = "idle"
+    LISTENING = "listening"
     PROCESSING = "processing"
     VALIDATING = "validating"
     EXECUTING = "executing"
@@ -35,10 +37,9 @@ class State(Enum):
     QUIT = "quit"
     ERROR = "error"
 
-
 class StateMachine:
     def __init__(self, debug_mode=False):
-        self._current_state = State.IDLE  # begin as IDLE
+        self._current_state = State.LISTENING  # begin as IDLE
         self.context = _Context()  # data about the current request
         self.running = True  # is the agent currently running?
         self.DEBUG_MODE = debug_mode  # bypasses llm input
@@ -49,8 +50,8 @@ class StateMachine:
         while self.running:
             try:
                 match self._current_state:
-                    case State.IDLE:
-                        self._idle()
+                    case State.LISTENING:
+                        self._listening()
                     case State.PROCESSING:
                         self._processing()
                     case State.VALIDATING:
@@ -78,24 +79,25 @@ class StateMachine:
 
     # STATE BEHAVIORS
 
-    def _idle(self):
-        """program clears all context and then listens for activation word: janus"""
-        # TODO: implement speech listener module
+    def _listening(self):
+        """listens for speaking and then audio is converted to text"""
+        self.context.user_input = listen()
+
         self.set_state(State.PROCESSING)
 
     def _processing(self):
-        """speech prompts are converted to text and fed to a llm to be processed into a command"""
-        user_input = input("Prompt: ")  # TODO: Replace with speech to text module
-        self.context.user_input = user_input
+        """user speech text is fed to a llm to be processed into a command"""
+        #user_input = input("Prompt: ")
+        #self.context.user_input = user_input
 
-        if user_input.lower() == "q" or user_input.lower() == "quit":
+        if self.context.user_input.lower() == "q" or self.context.user_input.lower() == "quit":
             self.set_state(State.QUIT)
             return
 
         if self.DEBUG_MODE:
-            self.context.llm_output = user_input
+            self.context.llm_output = self.context.user_input
         else:
-            self.context.llm_output = prompt_llm(user_input)
+            self.context.llm_output = prompt_llm(self.context.user_input)
 
         self.set_state(State.VALIDATING)
 
@@ -113,15 +115,16 @@ class StateMachine:
         self.set_state(State.FINISHING)
 
     def _finishing(self):
-        """clear command context and transition back to IDLE"""
+        """clear command context and transition back to LISTENING"""
+        print(self.context)
         self.context.reset_current_request()
-        self.set_state(State.IDLE)
+        self.set_state(State.LISTENING)
 
     def _error(self, error):
-        """handle any errors, clear context, then transition back to IDLE"""
+        """handle any errors, clear context, then transition back to LISTENING"""
         self.context.error_status = error
         #print(f"An error has occurred: {error}")
         print(self.context)
 
         self.context.reset_current_request()
-        self.set_state(State.IDLE)  # return to IDLE state after error has been dealt with
+        self.set_state(State.LISTENING)  # return to LISTENING state after error has been dealt with
