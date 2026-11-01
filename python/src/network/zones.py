@@ -3,17 +3,20 @@ from pathlib import Path
 import requests
 import threading
 
-file_path = Path(__file__).parent.parent.parent / "data" / "zones.json"
+zonedata_file_path = Path(__file__).parent.parent.parent / "data" / "zones.json"
 
-with open(file_path, 'r') as file:
+with open(zonedata_file_path, 'r') as file:
     zone_data = json.load(file).get("zones")
 
+# track active zones (zone_number: bool), true if active
+zone_activation = {}
 
 def setup_all_zones():
     """attempts to communicate with all zones located identified in data/zones.json"""
     threads = []
 
     for i, zone in enumerate(zone_data):
+
         t = threading.Thread(target=setup_zone, args=(zone, i))
         threads.append(t)
         t.start()
@@ -34,9 +37,11 @@ def setup_zone(current_zone, zone_number):
             timeout=5
         )
 
-        print("Zone number " + str(zone_number) + ":")
-        print(response.text)
+        print("Zone " + str(zone_number) + ": " + response.text)
+
+        zone_activation[zone_number] = True  # mark zone as successfully activated
 
     except Exception as e:
         print(str(current_zone_ip) + " was unresponsive\n")
+        zone_activation[zone_number] = False  # mark zone as not active
 

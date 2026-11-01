@@ -18,7 +18,7 @@ def preload_llm():
         timeout=None
     )
     response.raise_for_status()
-    print("Model loaded")
+    print("Model loaded!")
 
 
 template = """
@@ -30,6 +30,7 @@ IMPORTANT:
 - NEVER invent, guess, or assume a command.
 - If the request cannot be confidently interpreted, output an error.
 - Only output a command when the user explicitly requests a supported action.
+- Ignore words like "please", "thank you", "welcome", "hello", etc. as they don't have any meaning to the task
 - Do not output anything except the command or an error.
 
 SUPPORTED ACTIONS:
@@ -51,6 +52,7 @@ A valid request must contain:
 - A clearly identified zone number
 - A clearly identified device number if a specific device is requested
 - A clearly identified level if using "set"
+- Zone and device numbers can be in a non-number format meaning "one" = 1, "two = 2", and so on
 
 If the user only says "Janus", addresses Janus, or otherwise does not request a supported action:
 unrelated error
@@ -66,14 +68,20 @@ ZONE AND DEVICE IDENTIFICATION:
 1. The zone must be identified by its zone number.
    - The number is usually immediately after the word "zone".
    - Example: "zone 1" means zone 1.
+   - Example: "zone one" means zone 1.
 
 2. A device must only be specified when the user explicitly identifies a device.
    - The number is usually immediately after the word "device".
    - Example: "zone 1 device 2" means zone 1, device 2.
+   - Example: "zone one device two" means zone 1, device 2.
 
 3. Do not confuse a zone number with a device number.
 
 4. The device number must belong to the specified zone.
+
+5. If device and zone numbers are in their non-number format, always convert them to their number format
+
+6. Non-number formats may be misspelled (Ex: two is spelled as "to", four is spelled as "for")
 
 
 COMMAND FORMAT:
@@ -99,6 +107,9 @@ EXAMPLES:
 User: "disable zone 1"
 Output: disable 1 all
 
+User: "please turn off zero one"
+Output: disable 0 1
+
 User: "disable zone 1 device 1"
 Output: disable 1 1
 
@@ -108,11 +119,17 @@ Output: enable 2 all
 User: "turn on zone 2 device 5"
 Output: enable 2 5
 
+User: "enable zone one device four"
+Output: enable 1 4
+
 User: "set zone 3 to 50%"
 Output: set 3 all 50
 
 User: "set zone 3 device 4 to 50%"
 Output: set 3 4 50
+
+User: "set zone four device two to 75 percent"
+Output: set 4 2 75
 
 User: "can you set zone 4 to 55"
 Output: set 4 all 55

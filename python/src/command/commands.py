@@ -1,5 +1,5 @@
 import requests
-from src.network.zones import zone_data
+from src.network.zones import zone_data, zone_activation
 
 
 def run_enable_disable(command_name, params):
@@ -22,6 +22,8 @@ def run_enable_disable(command_name, params):
                 timeout=5
             )
             print(response.text)
+
+            return response.text
 
         case _:
             raise Exception("Incorrect number of parameters")
@@ -74,14 +76,24 @@ def parse_command(input_command):
 
 
 def run_command(parsed_command):
-    """attempt to run a parsed command by finding its associated function"""
+    """
+    attempt to run a parsed command by finding its associated function.
+    returns an error if the zone is not activated or does not exist at all
+    """
     command_name = parsed_command["command"]
     params = parsed_command["params"]
+    zone_number = int(params[0])
+
+    # check if current zone is activated
+    if not zone_activation.get(zone_number, False):
+        print("Zone not activated")
+        raise Exception("Zone not activated")
 
     #if associated function found, run the command
     if command_name in function_map:
         command_function = function_map.get(command_name)
-        command_function(command_name, params)
+        return command_function(command_name, params)
     else:
+        print("Command not found")
         raise Exception("Command not found")
 
