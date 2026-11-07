@@ -11,6 +11,7 @@ with open(zonedata_file_path, 'r') as file:
 # track active zones (zone_number: bool), true if active
 zone_activation = {}
 
+
 def setup_all_zones():
     """attempts to communicate with all zones located identified in data/zones.json"""
     threads = []

@@ -1,7 +1,7 @@
 from enum import Enum
 from src.listener.listener import listen
 from src.agent.agent import prompt_llm
-from src.command.commands import parse_command, run_command
+from src.agent.commands import validate_command, run_command
 
 
 class _Context:
@@ -36,6 +36,7 @@ class State(Enum):
     FINISHING = "finishing"
     QUIT = "quit"
     ERROR = "error"
+
 
 class StateMachine:
     def __init__(self, debug_mode=False):
@@ -81,37 +82,34 @@ class StateMachine:
 
     def _listening(self):
         """listens for speaking and then audio is converted to text"""
-        if not self.DEBUG_MODE:
+        if self.DEBUG_MODE:
+            self.context.user_input = input("Prompt: ")
+        else:
             self.context.user_input = listen()
 
         self.set_state(State.PROCESSING)
 
     def _processing(self):
         """user speech text is fed to a llm to be processed into a command"""
-        if self.DEBUG_MODE:
-            self.context.user_input = input("Prompt: ")
 
         # check if the program should be ended
         if self.context.user_input.lower() == "q" or self.context.user_input.lower() == "quit":
             self.set_state(State.QUIT)
             return
 
-        if self.DEBUG_MODE:
-            self.context.llm_output = self.context.user_input
-        else:
-            self.context.llm_output = prompt_llm(self.context.user_input)
+        self.context.llm_output = prompt_llm(self.context.user_input)
 
         self.set_state(State.VALIDATING)
 
     def _validating(self):
         """processed commands are checked for errors and then formatted"""
-        self.context.command = parse_command(self.context.llm_output)
+        self.context.command = validate_command(self.context.llm_output)
 
         self.set_state(State.EXECUTING)
 
-    #
     def _executing(self):
         """attempt to execute a command and then wait for its response"""
+
         self.context.response = run_command(self.context.command)
 
         self.set_state(State.FINISHING)

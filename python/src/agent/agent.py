@@ -1,11 +1,20 @@
-from langchain_ollama.llms import OllamaLLM
+from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 import requests
+from src.agent.commands import run_enable, run_disable, run_set
 
-model = OllamaLLM(
+# all tools the AI has access to
+tool_list = [
+    run_enable,
+    run_disable,
+    run_set
+]
+
+model = ChatOllama(
     model="llama3.2",
+    temperature=0,  # minimize randomness
     keep_alive="30m"
-)
+).bind_tools(tool_list)
 
 
 def preload_llm():
@@ -14,6 +23,7 @@ def preload_llm():
         "http://localhost:11434/api/generate",
         json={
             "model": "llama3.2",
+            "temperature": 0,
             "keep_alive": "30m"
         },
         timeout=None
@@ -23,142 +33,23 @@ def preload_llm():
 
 
 template = """
-You are an AI home assistant and multimedia controller named Janus.
+You are Janus, an AI home assistant and multimedia controller.
 
-Your job is to interpret the user's request and convert it into exactly one command.
+Your job is to interpret user requests and select the appropriate tool.
 
-IMPORTANT:
-- NEVER invent, guess, or assume a command.
-- If the request cannot be confidently interpreted, output an error.
-- Only output a command when the user explicitly requests a supported action.
-- Ignore words like "please", "thank you", "welcome", "hello", etc. as they don't have any meaning to the task
-- Do not output anything except the command or an error.
+RULES:
 
-SUPPORTED ACTIONS:
+1. Only use tools when the user explicitly requests a supported action.
+2. Never guess missing information.
+3. Zone numbers must be explicitly identified.
+4. Device numbers must be explicitly identified if a specific device is requested.
+5. If no device is specified, use None.
+6. Convert written numbers into integers.
+7. If required information is missing, ask the user for clarification.
+8. Never execute unrelated requests.
+9. If you do not recognize anything related to the tools, do not try to guess the command
 
-Turn on / enable:
-enable
-
-Turn off / disable:
-disable
-
-Dim / raise / set brightness:
-set
-
-
-REQUEST VALIDATION:
-
-A valid request must contain:
-- A supported action
-- A clearly identified zone number
-- A clearly identified device number if a specific device is requested
-- A clearly identified level if using "set"
-- Zone and device numbers can be in a non-number format meaning "one" = 1, "two = 2", and so on
-
-If the user only says "Janus", addresses Janus, or otherwise does not request a supported action:
-unrelated error
-
-If required information is missing or ambiguous:
-unknown error <reason>
-
-NEVER guess missing information.
-
-
-ZONE AND DEVICE IDENTIFICATION:
-
-1. The zone must be identified by its zone number.
-   - The number is usually immediately after the word "zone".
-   - Example: "zone 1" means zone 1.
-   - Example: "zone one" means zone 1.
-
-2. A device must only be specified when the user explicitly identifies a device.
-   - The number is usually immediately after the word "device".
-   - Example: "zone 1 device 2" means zone 1, device 2.
-   - Example: "zone one device two" means zone 1, device 2.
-
-3. Do not confuse a zone number with a device number.
-
-4. The device number must belong to the specified zone.
-
-5. If device and zone numbers are in their non-number format, always convert them to their number format
-
-6. Non-number formats may be misspelled (Ex: two is spelled as "to", four is spelled as "for")
-
-
-COMMAND FORMAT:
-
-enable <zone-number> <device-number>
-
-disable <zone-number> <device-number>
-
-set <zone-number> <device-number> <level>
-
-
-If no device is specified:
-
-enable <zone-number> all
-
-disable <zone-number> all
-
-set <zone-number> all <level>
-
-
-EXAMPLES:
-
-User: "disable zone 1"
-Output: disable 1 all
-
-User: "please turn off zero one"
-Output: disable 0 1
-
-User: "disable zone 1 device 1"
-Output: disable 1 1
-
-User: "turn on zone 2"
-Output: enable 2 all
-
-User: "turn on zone 2 device 5"
-Output: enable 2 5
-
-User: "enable zone one device four"
-Output: enable 1 4
-
-User: "set zone 3 to 50%"
-Output: set 3 all 50
-
-User: "set zone 3 device 4 to 50%"
-Output: set 3 4 50
-
-User: "set zone four device two to 75 percent"
-Output: set 4 2 75
-
-User: "can you set zone 4 to 55"
-Output: set 4 all 55
-
-User: "Janus"
-Output: unrelated error
-
-User: "hello"
-Output: unrelated error
-
-User: "turn on"
-Output: unknown error zone not specified
-
-User: "disable zone 1 device"
-Output: unknown error device number not specified
-
-ERROR FORMAT:
-
-If the request is unrelated to home control:
-unrelated error
-
-If the request is related to home control but cannot be interpreted:
-unknown error <reason>
-
-Do not use quotation marks.
-Use exactly one space between parameters.
-
-USER INPUT:
+USER REQUEST:
 {user_input}
 """
 
@@ -168,6 +59,8 @@ chain = prompt | model
 
 def prompt_llm(user_input):
     """returns a specific command based on user input"""
-    output = chain.invoke({"user_input": user_input})
-    print(output)
-    return output
+    output = chain.invoke({
+        "user_input": user_input
+    })
+
+    return output.tool_calls
