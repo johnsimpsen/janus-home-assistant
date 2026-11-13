@@ -123,20 +123,29 @@ void enableDevice() {
         return;
     }
 
-    //enable one specific device
-    int deviceId = param.toInt();
     DeviceManager* deviceManager = DeviceManager::getInstance();
-    Device* device = deviceManager->getDevice(deviceId);
 
-    if (!device) {
-        server.send(400, "text/plain", "Device " + String(deviceId) + " could not be found");
-        return;
+    //FIXME: need to explicitly check if the string is numeric or not
+    //FIXME: also need to send response codes and messages for nicknames
+    //enable one specific device
+    if (param.toInt()) {
+        int deviceId = param.toInt();
+        Device* device = deviceManager->getDevice(deviceId);
+
+        if (!device) {
+            server.send(400, "text/plain", "Device " + String(deviceId) + " could not be found");
+            return;
+        }
+
+        if (device->setState(true))
+            server.send(200, "text/plain", "Device " + String(deviceId) +  " enabled");
+        else
+            server.send(400, "text/plain", "Device " + String(deviceId) + " failed to enable");
     }
-
-    if (device->setState(true))
-        server.send(200, "text/plain", "Device " + String(deviceId) +  " enabled");
-    else
-        server.send(400, "text/plain", "Device " + String(deviceId) + " failed to enable");
+    else {
+        Device* device = deviceManager->getDevice(param.c_str());
+        bool result = device->setState(true);
+    }
 }
 
 void disableAllDevices() {
@@ -172,21 +181,29 @@ void disableDevice() {
         return;
     }
 
-    //disable one specific device
-    int deviceId = param.toInt();
     DeviceManager* deviceManager = DeviceManager::getInstance();
-    Device* device = deviceManager->getDevice(deviceId);
 
-    //disable one specific device
-    if (!device) {
-        server.send(400, "text/plain", String("Device " + String(deviceId) + " could not be found"));
-        return;
+    //FIXME: need to explicitly check if the string is numeric or not
+    //FIXME: also need to send response codes and messages for nicknames
+    //enable one specific device
+    if (param.toInt()) {
+        int deviceId = param.toInt();
+        Device* device = deviceManager->getDevice(deviceId);
+
+        if (!device) {
+            server.send(400, "text/plain", "Device " + String(deviceId) + " could not be found");
+            return;
+        }
+
+        if (device->setState(true))
+            server.send(200, "text/plain", "Device " + String(deviceId) +  " disabled");
+        else
+            server.send(400, "text/plain", "Device " + String(deviceId) + " failed to disable");
     }
-
-    if (device->setState(false))
-        server.send(200, "text/plain", String("Device " + String(deviceId) +  " disabled"));
-    else
-        server.send(400, "text/plain", String("Device " + String(deviceId) + " failed to disable"));
+    else {
+        Device* device = deviceManager->getDevice(param.c_str());
+        bool result = device->setState(false);
+    }
 }
 
 
