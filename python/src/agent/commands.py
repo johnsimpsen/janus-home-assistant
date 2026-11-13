@@ -1,26 +1,7 @@
 import requests
-import re
-import unicodedata
-from src.network.zones import zone_data, zone_activation
+from src.network.zones import zone_data, zone_activation_data, cleanup_nickname
 from pydantic import BaseModel, Field, field_validator
 from langchain_core.tools import tool
-
-
-#TODO: Will expand implementation with AI model or RapidFuzz to validate from a set of existing nicknames
-def cleanup_nickname(nickname):
-    """
-    Remove a strings that has its outer whitespace removed, special characters removed,
-    and inner whitespace changed to a single underscore.
-    :param nickname:
-    :return: formatted nickname
-    """
-
-    nickname = unicodedata.normalize("NFKD", nickname)
-    nickname = nickname.lower()
-    nickname.strip()
-    nickname = re.sub(r"[^\w\s]", "", nickname)  # remove special characters
-    nickname = re.sub(r"\s+", "_", nickname)  # normalize white spaces into a single underscore
-    return nickname.strip("_")
 
 
 class EnableDisableByNumberArgs(BaseModel):
@@ -105,6 +86,7 @@ class EnableDisableByNicknameArgs(BaseModel):
         description="The device nickname, if known",
     )
 
+    # TODO: Will expand implementation with AI model or RapidFuzz to validate from a set of existing nicknames
     @field_validator("device_nickname")
     @classmethod
     def normalize_nickname(cls, value):
@@ -234,7 +216,7 @@ def validate_command(command):
     zone_number = validated_args.zone_number
 
     # check if current zone is activated
-    if not zone_activation.get(zone_number, False):
+    if not zone_activation_data.get(zone_number, False):
         print("Zone not activated")
         raise Exception("Zone not activated")
 
