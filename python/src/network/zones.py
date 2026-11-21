@@ -5,6 +5,8 @@ import requests.exceptions
 import threading
 import re
 import unicodedata
+
+from src.config import HTTP_TIMEOUT_SECONDS
 from src.network.zone_models import Config
 
 
@@ -15,8 +17,6 @@ with open(zonedata_file_path, 'r') as file:
 
 
 zone_activation_data = {}  # track active zones (zone_number: bool), true if active
-
-#TODO: implement nickname conversion in llm instead of interpreting nicknames
 device_nickname_data = {}  # track device_nickname to its zone_number and device_number
 
 
@@ -58,7 +58,7 @@ def setup_zone(current_zone, zone_number):
             url=f'http://{current_zone_ip}/setupDevices',
             json=current_zone,
             headers={"Content-Type": "application/json"},
-            timeout=5
+            timeout=HTTP_TIMEOUT_SECONDS
         )
 
         print("Zone " + str(zone_number) + ": " + response.text)

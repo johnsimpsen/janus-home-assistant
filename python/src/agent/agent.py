@@ -1,14 +1,14 @@
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 import requests
-from src.agent.commands import run_enable_by_number, run_disable_by_number, run_enable_by_nickname, run_disable_by_nickname, run_set
+from src.agent.commands import run_unrelated, run_enable, run_disable, run_set
+from src.network.zones import zone_data, device_nickname_data
 
 # all tools the AI has access to
 tool_list = [
-    run_enable_by_number,
-    run_disable_by_number,
-    run_enable_by_nickname,
-    run_disable_by_nickname,
+    run_unrelated,
+    run_enable,
+    run_disable,
     run_set
 ]
 
@@ -47,20 +47,27 @@ RULES:
 3. Zone numbers must be explicitly identified.
 4. Device numbers must be explicitly identified if a specific device is requested.
 5. Convert written numbers into integers.
-6. If required information is missing, ask the user for clarification.
-7. Never execute unrelated requests.
-8. If you do not recognize anything related to the tools, do not try to guess the command
-9. Be careful, device nicknames can be multiple words
+6. Unrelated requests have a delegated tool
+7. If you do not recognize anything related to the tools, do not try to guess the command and use unrelated instead
+8. Be careful, device nicknames can be multiple words
+9. If s nickname, device_number, or zone are given but not the command itself, output unrelated
 10. device numbers are always going to be a number or digits, and device nicknames will always be words
-11. device nickname can be 'all', this just disables all the devices
+11. If specified, all will be a device_number of -1
+12: Do not attempt to use the set command on a device that is not labelled as dimmable
+
+Here is the data of all the zones:
+{zone_data}
+
+Here is a dictionary of nickname to zone_number and device_number
+{device_nickname_data}
+
+If you are given something very similar to a device nickname, but not exactly the same, try and interpret the correct
+nickname being provided
 
 USER REQUEST:
 {user_input}
 """
 
-#TODO: Give AI access to zone and device data
-# it can then choose from a list of valid zone_numbers, device_numbers, and device_nicknames
-# maybe it should automatically convert a device_nickname into the corresponding zone_number and device_number
 prompt = ChatPromptTemplate.from_template(template)
 chain = prompt | model
 
@@ -68,7 +75,15 @@ chain = prompt | model
 def prompt_llm(user_input):
     """returns a specific command based on user input"""
     output = chain.invoke({
-        "user_input": user_input
+        "user_input": user_input,
+        "device_nickname_data": device_nickname_data,
+        "zone_data": zone_data,
     })
+
+    if not output.tool_calls:
+        return None
+
+    if len(output.tool_calls) != 1:
+        return None
 
     return output.tool_calls

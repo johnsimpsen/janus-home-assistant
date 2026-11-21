@@ -9,10 +9,11 @@
 ## Features
 
 - Voice-controlled device management through speech recognition.
-- Natural language command interpretation using Llama 3.2.
+- Natural language command interpretation using Llama 3.2 tool calling.
 - ESP32 integration for controlling connected devices.
 - Zone-based device organization.
 - Device control through enable, disable, set, and additional commands.
+- Set device nicknames and automatically convert nicknames to zone and device numbers
 
 ## Technologies Used
 
@@ -39,8 +40,9 @@
 
 Janus uses [Vosk](https://alphacephei.com/vosk/) and the `vosk-model-small-en-us-0.15` speech recognition model, included in `python/data`.
 
-- **Copyright:** 2020 Alpha Cephei Inc.
-- **License:** [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+> **Copyright:** 2020 Alpha Cephei Inc.
+> 
+> **License:** [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 ### Large Language Model
 
@@ -48,9 +50,7 @@ This project uses [Ollama](https://ollama.com/) to run local large language mode
 
 Janus uses [Llama 3.2](https://www.llama.com/) by [Meta](https://about.meta.com/), running locally through Ollama, to power its natural language command interpretation.
 
-Llama 3.2 is licensed under the [Llama 3.2 Community License](https://dev.meta.ai/llama/llama3_2/license).
-
-> Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.
+> Llama 3.2 is licensed under the [Llama 3.2 Community License](https://dev.meta.ai/llama/llama3_2/license), Copyright © Meta Platforms, Inc. All Rights Reserved.
 
 ---
 
@@ -58,16 +58,17 @@ Llama 3.2 is licensed under the [Llama 3.2 Community License](https://dev.meta.a
 
 Janus interprets natural language input and translates it into structured commands.
 
-| Command | Parameters | Description |
-|---|---|---|
-| `enable <zone-number> <device-number>` | `zone-number`: Target zone. `device-number`: Target device. | Enables the specified device in the specified zone. |
-| `disable <zone-number> <device-number>` | `zone-number`: Target zone. `device-number`: Target device. | Disables the specified device in the specified zone. |
-| `set <zone-number> <device-number> <level>` | `zone-number`: Target zone. `device-number`: Target device. `level`: Desired device level. | Sets the specified device to the desired level. |
+| Command                                     | Parameters                                                                                           | Description                                            |
+|---------------------------------------------|------------------------------------------------------------------------------------------------------|:-------------------------------------------------------|
+| `unrelated`                                 | N/A                                                                                                  | Does nothing, called when the user input is unrelated. |
+| `enable <zone_number> <device_number>`      | `zone_number`: Target zone.<br/> `device_number`: Target device.                                     | Enables the specified device in the specified zone.    |
+| `disable <zone_number> <device_number>`     | `zone_number`: Target zone.<br/> `device_number`: Target device.                                     | Disables the specified device in the specified zone.   |
+| `set <zone_number> <device_number> <level>` | `zone_number`: Target zone.<br/> `device_number`: Target device.<br/> `level`: Desired device level. | Sets the specified device to the desired level.        |
 
 ### Additional Notes
 
 - `zone-number` identifies the target zone.
 - `device-number` identifies the target device within that zone.
 - `level` specifies the desired setting for a device (e.g., brightness) and must be between `0` and `100`.
-- Use `all` in place of `device-number` to target every device in a zone for `enable` and `disable` commands.
+- Use `all`  in place of `device-number` to target every device in a zone for `enable` and `disable` commands. (all is -1 internally) 
 - More commands will be added in the future.
