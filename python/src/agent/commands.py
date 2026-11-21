@@ -1,20 +1,55 @@
 import requests
-from src.network.zones import zone_data, zone_activation
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from langchain_core.tools import tool
 
-
-class EnableArgs(BaseModel):
-    zone_number: int = Field(description="The zone number")
-    device_number: int = Field(description="The device number")
+from src.config import HTTP_TIMEOUT_SECONDS
+from src.network.zones import zone_data, zone_activation_data, cleanup_nickname
 
 
-@tool(args_schema=EnableArgs)
+@tool
+def run_unrelated():
+    """
+    Call this when the user request does not involve a supported device action.
+
+    This tool is intended to execute nothing.
+
+    :return: "unrelated"
+    """
+
+    return "unrelated"
+
+
+class EnableDisableArgs(BaseModel):
+    zone_number: int = Field(
+        description="The zone number"
+    )
+    device_number: int = Field(
+        description="The device number, if known",
+    )
+
+
+@tool(args_schema=EnableDisableArgs)
 def run_enable(zone_number: int, device_number: int):
     """
+    Command name: *enable*
+
     Makes an HTTP request to the specified zone and device to enable it.
+
+    Enable a device using its NUMERIC device ID.
+
+    ONLY use this tool when the user explicitly identifies the device using a numeric ID.
+
+    The device_number argument MUST be an integer.
+
+    **Examples:**
+
+    - Enable zone 0 device 2.
+    - Turn on device number 3 in zone 1.
+    - Activate device 0 in zone 2.
+
     :param zone_number: used to find the associated ip
-    :param device_number: used to choose the specific device
+    :param device_number: the device's number
+    :return: the response from the zone
     :raise HTTP Timeout:
     """
 
@@ -22,36 +57,125 @@ def run_enable(zone_number: int, device_number: int):
 
     response = requests.get(
         f'http://{current_zone_ip.get("ip")}/enable?deviceId={str(device_number)}',
-        timeout=5
+        timeout=HTTP_TIMEOUT_SECONDS
     )
 
     return response.text
 
 
-class DisableArgs(BaseModel):
-    zone_number: int = Field(description="The zone number")
-    device_number: int = Field(description="The device number")
-
-
-@tool(args_schema=DisableArgs)
+@tool(args_schema=EnableDisableArgs)
 def run_disable(zone_number: int, device_number: int):
     """
+    Command name: *disable*
+
     Makes an HTTP request to the specified zone and device to disable it.
+
+    Disable a device using its NUMERIC device ID.
+
+    ONLY use this tool when the user explicitly identifies the device using a numeric ID.
+
+    The device_number argument MUST be an integer.
+
+    **Examples:**
+
+    - Disable zone 0 device 2.
+    - Turn off device number 3 in zone 1.
+    - Please deactivate device 0 in zone 2.
+
     :param zone_number: used to find the associated ip
-    :param device_number: used to choose the specific device
+    :param device_number: the device's number
     :raise HTTP Timeout:
     """
-
-    print(type(zone_number))
 
     current_zone_ip = zone_data[int(zone_number)]
 
     response = requests.get(
         f'http://{current_zone_ip.get("ip")}/disable?deviceId={str(device_number)}',
-        timeout=5
+        timeout=HTTP_TIMEOUT_SECONDS
     )
 
     return response.text
+
+
+# TODO: This will probably be unused, delete later in favor of
+# class EnableDisableByNicknameArgs(BaseModel):
+#     zone_number: int = Field(
+#         description="The zone number"
+#     )
+#     device_nickname: str = Field(
+#         description="The device nickname, if known",
+#     )
+#
+#     @field_validator("device_nickname")
+#     @classmethod
+#     def normalize_nickname(cls, value):
+#         return cleanup_nickname(value)
+#
+#
+# @tool(args_schema=EnableDisableByNicknameArgs)
+# def run_enable_by_nickname(zone_number: int, device_nickname: str):
+#     """
+#     Makes an HTTP request to the specified zone and device to enable it.
+#
+#     Enable a device using its STRING nickname.
+#
+#     ONLY use this tool when the user identifies the device
+#     using its name or nickname.
+#
+#     Examples:
+#     - Enable zone 0 red_led.
+#     - Turn on the bedroom light.
+#     - Activate the kitchen lamp in zone 1.
+#
+#     The device_nickname argument MUST be a string.
+#
+#     NEVER use this tool when the user explicitly identifies
+#     the device using a numeric device ID.
+#
+#     :param zone_number: used to find the associated ip
+#     :param device_nickname: the device's number
+#     :raise HTTP Timeout:
+#     """
+#
+#     current_zone_ip = zone_data[int(zone_number)]
+#
+#     response = requests.get(
+#         f'http://{current_zone_ip.get("ip")}/enable?deviceId={device_nickname}',
+#         timeout=5
+#     )
+#
+#     return response.text
+#
+#
+# @tool(args_schema=EnableDisableByNicknameArgs)
+# def run_disable_by_nickname(zone_number: int, device_nickname: str):
+#     """
+#     Makes an HTTP request to the specified zone and device to disable it.
+#
+#     Disable a device using its STRING nickname.
+#
+#     ONLY use this tool when the user identifies the device
+#     by its name or nickname, such as:
+#     - Disable zone 0 red_led
+#     - Turn off the bedroom light
+#     - Disable the kitchen lamp
+#
+#     NEVER use this tool when the user explicitly provides
+#     a numeric device ID.
+#
+#     :param zone_number: used to find the associated ip
+#     :param device_nickname: the device's number
+#     :raise HTTP Timeout:
+#     """
+#
+#     current_zone_ip = zone_data[int(zone_number)]
+#
+#     response = requests.get(
+#         f'http://{current_zone_ip.get("ip")}/disable?deviceId={device_nickname}',
+#         timeout=5
+#     )
+#
+#     return response.text
 
 
 class SetArgs(BaseModel):
@@ -67,7 +191,6 @@ def run_set(zone_number: int, device_number: int, level: int):
     :param zone_number: used to find the associated ip
     :param device_number: used to choose the specific device
     :param level: number 0-100 determines the strength of the device
-    :raise Incorrect number of parameters
     :raise HTTP Timeout:
     """
 
@@ -83,15 +206,20 @@ def run_set(zone_number: int, device_number: int, level: int):
 
 # all tools the AI has access to
 tool_map = {
+    "run_unrelated": run_unrelated,
     "run_enable": run_enable,
     "run_disable": run_disable,
+    #"run_enable_by_nickname": run_enable_by_nickname,
+    #"run_disable_by_nickname": run_disable_by_nickname,
     "run_set": run_set
 }
 
 # all associated schemas for tools
 tool_schemas = {
-    "run_enable": EnableArgs,
-    "run_disable": DisableArgs,
+    "run_enable": EnableDisableArgs,
+    "run_disable": EnableDisableArgs,
+    #"run_enable_by_nickname": EnableDisableByNicknameArgs,
+    #"run_disable_by_nickname": EnableDisableByNicknameArgs,
     "run_set": SetArgs
 }
 
@@ -99,16 +227,19 @@ tool_schemas = {
 def validate_command(command):
     """returns an error if the zone is not activated or does not exist at all"""
 
+    tool_name = command[0]["name"]
     arguments = command[0]["args"]
-    command_name = command[0]["name"]
 
-    command_schema = tool_schemas.get(command_name)
-    validated_args = command_schema.model_validate(arguments)
+    if tool_name == "run_unrelated":
+        return command
+
+    tool_schema = tool_schemas.get(tool_name)
+    validated_args = tool_schema.model_validate(arguments)
 
     zone_number = validated_args.zone_number
 
     # check if current zone is activated
-    if not zone_activation.get(zone_number, False):
+    if not zone_activation_data.get(zone_number, False):
         print("Zone not activated")
         raise Exception("Zone not activated")
 

@@ -123,20 +123,37 @@ void enableDevice() {
         return;
     }
 
-    //enable one specific device
-    int deviceId = param.toInt();
     DeviceManager* deviceManager = DeviceManager::getInstance();
-    Device* device = deviceManager->getDevice(deviceId);
 
-    if (!device) {
-        server.send(400, "text/plain", "Device " + String(deviceId) + " could not be found");
-        return;
+    //check if input is a device number or device nickname
+    if (!param.isEmpty() && std::ranges::all_of(param, ::isdigit)) { //deviceId
+        int deviceId = param.toInt();
+        Device* device = deviceManager->getDevice(deviceId);
+
+        if (!device) {
+            server.send(400, "text/plain", "Device " + String(deviceId) + " could not be found");
+            return;
+        }
+
+        if (device->setState(true))
+            server.send(200, "text/plain", "Device " + String(deviceId) +  " enabled");
+        else
+            server.send(400, "text/plain", "Device " + String(deviceId) + " failed to enable");
     }
+    else { //deviceNickname
+        const String deviceName = param.c_str();
+        const Device* device = deviceManager->getDevice(param.c_str());
 
-    if (device->setState(true))
-        server.send(200, "text/plain", "Device " + String(deviceId) +  " enabled");
-    else
-        server.send(400, "text/plain", "Device " + String(deviceId) + " failed to enable");
+        if (!device) {
+            server.send(400, "text/plain", "Device " + deviceName + " could not be found");
+            return;
+        }
+
+        if (device->setState(true))
+            server.send(200, "text/plain", "Device " + deviceName +  " enabled");
+        else
+            server.send(400, "text/plain", "Device " + deviceName + " failed to enable");
+    }
 }
 
 void disableAllDevices() {
@@ -172,21 +189,37 @@ void disableDevice() {
         return;
     }
 
-    //disable one specific device
-    int deviceId = param.toInt();
     DeviceManager* deviceManager = DeviceManager::getInstance();
-    Device* device = deviceManager->getDevice(deviceId);
 
-    //disable one specific device
-    if (!device) {
-        server.send(400, "text/plain", String("Device " + String(deviceId) + " could not be found"));
-        return;
+    //check if input is a device number or device nickname
+    if (!param.isEmpty() && std::ranges::all_of(param, ::isdigit)) { //deviceId
+        int deviceId = param.toInt();
+        Device* device = deviceManager->getDevice(deviceId);
+
+        if (!device) {
+            server.send(400, "text/plain", "Device " + String(deviceId) + " could not be found");
+            return;
+        }
+
+        if (device->setState(false))
+            server.send(200, "text/plain", "Device " + String(deviceId) +  " disabled");
+        else
+            server.send(400, "text/plain", "Device " + String(deviceId) + " failed to disable");
     }
+    else { //deviceNickname
+        const String deviceName = param.c_str();
+        const Device* device = deviceManager->getDevice(param.c_str());
 
-    if (device->setState(false))
-        server.send(200, "text/plain", String("Device " + String(deviceId) +  " disabled"));
-    else
-        server.send(400, "text/plain", String("Device " + String(deviceId) + " failed to disable"));
+        if (!device) {
+            server.send(400, "text/plain", "Device " + deviceName + " could not be found");
+            return;
+        }
+
+        if (device->setState(false))
+            server.send(200, "text/plain", "Device " + deviceName +  " disabled");
+        else
+            server.send(400, "text/plain", "Device " + deviceName + " failed to disable");
+    }
 }
 
 
