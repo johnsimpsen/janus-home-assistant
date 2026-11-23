@@ -1,4 +1,6 @@
 from enum import Enum
+import logging
+
 from src.listener.listener import listen
 from src.agent.agent import prompt_llm
 from src.agent.commands import validate_command, run_command

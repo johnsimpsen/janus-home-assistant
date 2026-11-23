@@ -2,7 +2,8 @@ import threading
 
 from src.config import DEBUG_MODE_ENABLED
 from src.StateMachine import StateMachine
-from src.network.zones import setup_all_zones, validate_zone_data, zone_activation_data, device_nickname_data
+from src.home.zones import setup_all_zones, validate_zone_data, zone_activation_data, device_nickname_data
+from src.home.groups import setup_all_groups, validate_group_data, nickname_to_devices
 from src.agent.agent import preload_llm
 
 
@@ -15,8 +16,12 @@ if __name__ == "__main__":
     validate_zone_data()
     setup_all_zones()
 
+    validate_group_data()
+    setup_all_groups()
+
     print(zone_activation_data)
     print(device_nickname_data)
+    print(nickname_to_devices)
 
     preload_thread.join()
 

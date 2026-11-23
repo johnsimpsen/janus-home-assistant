@@ -1,9 +1,11 @@
 import requests
+from concurrent.futures import ThreadPoolExecutor
 from pydantic import BaseModel, Field, field_validator
 from langchain_core.tools import tool
 
 from src.config import HTTP_TIMEOUT_SECONDS
-from src.network.zones import zone_data, zone_activation_data, cleanup_nickname
+from src.home.zones import zone_data, zone_activation_data
+from src.home.groups import nickname_to_devices
 
 
 @tool
@@ -26,6 +28,15 @@ class EnableDisableArgs(BaseModel):
     device_number: int = Field(
         description="The device number, if known",
     )
+
+    @field_validator("zone_number")
+    @classmethod
+    def validate_zone_number(cls, value):
+        # check if current zone is activated
+        if not zone_activation_data.get(value, False):
+            raise ValueError("Zone not activated")
+
+        return value
 
 
 @tool(args_schema=EnableDisableArgs)
@@ -95,6 +106,116 @@ def run_disable(zone_number: int, device_number: int):
     )
 
     return response.text
+
+
+class EnableDisableGroupArgs(BaseModel):
+    group_nickname: str = Field(
+        description="The nickname of the group"
+    )
+
+    @field_validator("group_nickname")
+    @classmethod
+    def validate_zone_numbers(cls, value):
+        #check if nickname is a valid group
+        if value not in nickname_to_devices:
+            raise ValueError("Unknown group nickname")
+
+        devices = nickname_to_devices[value]
+        # check if all zones are activated
+        for device in devices:
+            zone_number = device["zone_number"]
+            if not zone_activation_data.get(zone_number, False):
+                raise ValueError("Zone not activated")
+
+        return value
+
+
+@tool(args_schema=EnableDisableGroupArgs)
+def run_enable_group(group_nickname: str):
+    """
+    Command name: *group enable*
+
+    Runs the run_enable command on a group of devices
+
+    **Examples:**
+
+    - Enable group1.
+    - Turn on the main lights.
+    - Activate my lamps.
+
+    :param group_nickname: the nickname of the group
+    :return: the response from the zone
+    :raise HTTP Timeout:
+    """
+
+    responses = []
+    devices = nickname_to_devices[group_nickname]
+
+    with ThreadPoolExecutor(max_workers=len(devices)) as executor:
+        futures = []
+
+        for device in devices:
+            arguments = {
+                "zone_number": device["zone_number"],
+                "device_number": device["device_number"],
+            }
+
+            future = executor.submit(lambda: run_enable.invoke(arguments))
+            futures.append((device, future))
+
+        for device, future in futures:
+            try:
+                response = future.result()
+                responses.append(response)
+            except Exception:
+                print(str(device) + " failed to enable")
+                responses.append(str(device) + " failed to enable")
+
+    return responses
+
+
+@tool(args_schema=EnableDisableGroupArgs)
+def run_disable_group(group_nickname: str):
+    """
+    Command name: *group disable*
+
+    Runs the run_disable command on a group of devices
+
+    **Examples:**
+
+    - Disable group1.
+    - Turn off the main lights.
+    - Deactivate my lamps.
+
+    :param group_nickname: the nickname of the group
+    :return: the response from the zone
+    :raise HTTP Timeout:
+    """
+
+    responses = []
+    devices = nickname_to_devices[group_nickname]
+
+    with ThreadPoolExecutor(max_workers=len(devices)) as executor:
+        futures = []
+
+        for device in devices:
+            arguments = {
+                "zone_number": device["zone_number"],
+                "device_number": device["device_number"],
+            }
+
+            future = executor.submit(lambda: run_disable.invoke(arguments))
+            futures.append((device, future))
+
+        for device, future in futures:
+            try:
+                response = future.result()
+                responses.append(response)
+            except Exception:
+                print(str(device) + " failed to enable")
+                responses.append(str(device) + " failed to enable")
+
+    return responses
 
 
 # TODO: This will probably be unused, delete later in favor of
@@ -209,6 +330,8 @@ tool_map = {
     "run_unrelated": run_unrelated,
     "run_enable": run_enable,
     "run_disable": run_disable,
+    "run_enable_group": run_enable_group,
+    "run_disable_group": run_disable_group,
     #"run_enable_by_nickname": run_enable_by_nickname,
     #"run_disable_by_nickname": run_disable_by_nickname,
     "run_set": run_set
@@ -218,6 +341,8 @@ tool_map = {
 tool_schemas = {
     "run_enable": EnableDisableArgs,
     "run_disable": EnableDisableArgs,
+    "run_enable_group": EnableDisableGroupArgs,
+    "run_disable_group": EnableDisableGroupArgs,
     #"run_enable_by_nickname": EnableDisableByNicknameArgs,
     #"run_disable_by_nickname": EnableDisableByNicknameArgs,
     "run_set": SetArgs
@@ -235,13 +360,6 @@ def validate_command(command):
 
     tool_schema = tool_schemas.get(tool_name)
     validated_args = tool_schema.model_validate(arguments)
-
-    zone_number = validated_args.zone_number
-
-    # check if current zone is activated
-    if not zone_activation_data.get(zone_number, False):
-        print("Zone not activated")
-        raise Exception("Zone not activated")
 
     command[0]["args"] = validated_args.model_dump()
     return command

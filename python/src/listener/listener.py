@@ -28,7 +28,7 @@ def listen():
 
     with sd.RawInputStream(
         samplerate=16000,
-        blocksize=8000,
+        blocksize=1600,
         dtype="int16",
         channels=1,
         callback=audio_callback

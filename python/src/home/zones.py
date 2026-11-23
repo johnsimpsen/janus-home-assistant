@@ -7,7 +7,7 @@ import re
 import unicodedata
 
 from src.config import HTTP_TIMEOUT_SECONDS
-from src.network.zone_models import Config
+from src.home.zone_models import Config
 
 
 zonedata_file_path = Path(__file__).parent.parent.parent / "data" / "zones.json"
@@ -74,6 +74,10 @@ def setup_zone(current_zone, zone_number):
 
     except requests.exceptions.ConnectTimeout:
         print(str(current_zone_ip) + " was unresponsive\n")
+        zone_activation_data[zone_number] = False  # mark zone as not active
+
+    except requests.exceptions.ConnectionError:
+        print(str(current_zone_ip) + " refused the connection\n")
         zone_activation_data[zone_number] = False  # mark zone as not active
 
 

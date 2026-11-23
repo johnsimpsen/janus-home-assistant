@@ -1,0 +1,18 @@
+{
+  "groups": [
+    {
+      "nickname": "purple",
+      "devices": [
+        {"zone_number": 0, "device_number": 0},
+        {"zone_number": 0, "device_number": 1}
+      ]
+    },
+    {
+      "nickname": "red",
+      "devices": [
+        {"zone_number": 0, "device_number": 0},
+        {"zone_number": 0, "device_number": 1}
+      ]
+    }
+  ]
+}
