@@ -11,5 +11,5 @@ class Group(BaseModel):
     devices: list[Device]  # list of connected devices to that zone
 
 
-class Config(BaseModel):
+class GroupData(BaseModel):
     groups: list[Group]  # list of all groups

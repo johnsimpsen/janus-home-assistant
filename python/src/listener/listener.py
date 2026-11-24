@@ -1,14 +1,13 @@
 import queue
 import json
-from pathlib import Path
 import sounddevice as sd
 from vosk import Model, KaldiRecognizer
 
+from src.config import VOSK_MODEL_PATH
 
 # Load the speech recognition model
 # Source: https://alphacephei.com/vosk/models
-model_file_path = Path(__file__).parent.parent.parent / "data" / "vosk-model-small-en-us-0.15"
-model = Model(str(model_file_path))
+model = Model(str(VOSK_MODEL_PATH))
 
 # Create recognizer
 recognizer = KaldiRecognizer(model, 16000)

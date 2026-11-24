@@ -1,12 +1,10 @@
 import json
-from pathlib import Path
 
-from src.home.group_models import Config
+from src.config import GROUP_DATA_PATH
+from src.home.group_models import GroupData
 from src.home.zones import cleanup_nickname
 
-groupdata_file_path = Path(__file__).parent.parent.parent / "data" / "groups.json"
-
-with open(groupdata_file_path, 'r') as file:
+with open(GROUP_DATA_PATH, 'r') as file:
     group_data = json.load(file).get("groups")
 
 
@@ -27,7 +25,7 @@ def validate_group_data():
     :raises ValueError:
     """
 
-    Config.model_validate({"groups": group_data})
+    GroupData.model_validate({"groups": group_data})
 
     nicknames = set()
     for group in group_data:

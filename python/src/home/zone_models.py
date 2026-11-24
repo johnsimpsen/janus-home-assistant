@@ -12,5 +12,5 @@ class Zone(BaseModel):
     devices: list[Device]  # list of connected devices to that zone
 
 
-class Config(BaseModel):
+class ZoneData(BaseModel):
     zones: list[Zone]  # list of all zones

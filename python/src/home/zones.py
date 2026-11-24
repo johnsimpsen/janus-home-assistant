@@ -1,18 +1,14 @@
 import json
-from pathlib import Path
 import requests
 import requests.exceptions
 import threading
 import re
 import unicodedata
 
-from src.config import HTTP_TIMEOUT_SECONDS
-from src.home.zone_models import Config
+from src.config import ZONE_DATA_PATH, HTTP_TIMEOUT_SECONDS
+from src.home.zone_models import ZoneData
 
-
-zonedata_file_path = Path(__file__).parent.parent.parent / "data" / "zones.json"
-
-with open(zonedata_file_path, 'r') as file:
+with open(ZONE_DATA_PATH, 'r') as file:
     zone_data = json.load(file).get("zones")
 
 
@@ -88,7 +84,7 @@ def validate_zone_data():
     :raises ValueError:
     """
 
-    Config.model_validate({"zones": zone_data})
+    ZoneData.model_validate({"zones": zone_data})
 
     nicknames = set()
     for i, zone in enumerate(zone_data):
