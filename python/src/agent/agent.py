@@ -1,7 +1,8 @@
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 import requests
-from src.agent.commands import run_unrelated, run_enable, run_disable, run_enable_group, run_disable_group, run_set
+
+from src.agent.commands import *
 from src.home.zones import zone_data, device_nickname_data
 from src.home.groups import nickname_to_devices
 
@@ -12,7 +13,7 @@ tool_list = [
     run_disable,
     run_enable_group,
     run_disable_group,
-    run_set
+    run_set,
 ]
 
 model = ChatOllama(
