@@ -62,7 +62,9 @@ Janus interprets natural language input and translates it into structured comman
 |---------------------------------------------|------------------------------------------------------------------------------------------------------|:-------------------------------------------------------|
 | `unrelated`                                 | N/A                                                                                                  | Does nothing, called when the user input is unrelated. |
 | `enable <zone_number> <device_number>`      | `zone_number`: Target zone.<br/> `device_number`: Target device.                                     | Enables the specified device in the specified zone.    |
+| `enable_group <group_nickname>`             | `group_nickname` Target group name                                                                   | Calls `enable` on all devices in the group.            |
 | `disable <zone_number> <device_number>`     | `zone_number`: Target zone.<br/> `device_number`: Target device.                                     | Disables the specified device in the specified zone.   |
+| `disable_group <group_nickname>`            | `group_nickname` Target group name                                                                   | Calls `disable` on all devices in the group.           |
 | `set <zone_number> <device_number> <level>` | `zone_number`: Target zone.<br/> `device_number`: Target device.<br/> `level`: Desired device level. | Sets the specified device to the desired level.        |
 
 ### Additional Notes
